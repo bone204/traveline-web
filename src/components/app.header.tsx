@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type NavItem = {
   label: string;
@@ -9,7 +10,6 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Trang chủ", href: "/home" },
   { label: "Điểm đến", href: "/bone" },
   { label: "Tour", href: "/tours" },
   { label: "Khách sạn", href: "/hotels" },
@@ -18,9 +18,24 @@ const navItems: NavItem[] = [
 
 function AppHeader() {
   const pathname = usePathname();
+  const [isSolid, setIsSolid] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const current = window.scrollY;
+      setIsSolid(current > 120);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="app-header" role="banner">
+    <header
+      className={`app-header ${isSolid ? "app-header--solid" : "app-header--overlay"}`}
+      role="banner"
+    >
       <div className="app-header-inner">
         <Link href="/" className="brand" aria-label="Trang chủ">
           <span className="brand-icon">✈</span>

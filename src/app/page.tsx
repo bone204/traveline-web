@@ -1,28 +1,34 @@
-'use client'
+import { HeroCarousel } from "@/components/hero.carousel";
 
-import Link from "next/link"
-import useSWR from 'swr'
+const featuredStories = [
+  {
+    title: "Khởi hành cuối tuần",
+    summary: "Combo bay + khách sạn Đà Nẵng 3N2Đ từ 3.6tr",
+  },
+  {
+    title: "Ẩm thực Tokyo",
+    summary: "Tour foodie 4 ngày ăn thả ga Michelin street food",
+  },
+  {
+    title: "Lạc giữa Cappadocia",
+    summary: "Đặt ngay vé khinh khí cầu bình minh, slot giới hạn",
+  },
+];
 
-export default function App() {
-  const fetcher = (url: string) => fetch(url).then(res => res.json())
-  const { data, error, isLoading } = useSWR(`http://localhost:4000/destinations`, fetcher)
+export default function HomePage() {
+  return (
+    <div className="home-page">
+      <HeroCarousel />
 
-  console.log({data})
- 
-  if (error) return <div>failed to load</div>
-  if (isLoading) return <div>loading...</div>
- 
-  return(
-    <div>
-      <div>{data?.length}</div>
-      <ul>
-        <li>
-          <Link href="/admin"><span>Admin</span></Link>
-        </li>
-        <li>
-          <Link href="/bone">Bone</Link>
-        </li>
-      </ul>
+      <section className="home-page__cards">
+        {featuredStories.map((story) => (
+          <article key={story.title}>
+            <h3>{story.title}</h3>
+            <p>{story.summary}</p>
+            <button type="button">Xem chi tiết</button>
+          </article>
+        ))}
+      </section>
     </div>
-  )
+  );
 }
