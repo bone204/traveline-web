@@ -218,10 +218,7 @@ a {
     filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
   }
   .brand-text {
-    background: var(--gradient-brand);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: #0ea5e9;
   }
   .tabs { 
     display: flex; 
@@ -854,6 +851,7 @@ a {
     margin: 0;
     flex: 1;
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -1330,20 +1328,27 @@ a {
   .app-footer__logo {
     display: flex;
     align-items: center;
+
     gap: 0.75rem;
     margin-bottom: 1.25rem;
   }
   .app-footer__logo-icon {
-    font-size: 2rem;
-    line-height: 1;
+    font-size: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: var(--gradient-ocean);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
   }
   .app-footer__logo-text {
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #0ea5e9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #0ea5e9;
   }
   .app-footer__description {
     color: #94a3b8;

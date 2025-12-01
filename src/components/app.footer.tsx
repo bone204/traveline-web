@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import travelIcon from "@/assets/icon/travel.svg";
 
 const AppFooter = () => {
   return (
@@ -9,12 +11,21 @@ const AppFooter = () => {
         {/* Brand Section */}
         <div className="app-footer__brand">
           <div className="app-footer__logo">
-            <span className="app-footer__logo-icon">✈</span>
-            <span className="app-footer__logo-text">Bone Travel</span>
+            <span className="app-footer__logo-icon">
+              <Image
+                src={travelIcon}
+                alt="Biểu tượng Traveline"
+                width={28}
+                height={28}
+                priority
+              />
+            </span>
+            <span className="app-footer__logo-text">Traveline</span>
           </div>
           <p className="app-footer__description">
-            Khám phá thế giới với những trải nghiệm du lịch tuyệt vời. 
-            Chúng tôi mang đến cho bạn những chuyến đi đáng nhớ với dịch vụ chất lượng cao.
+            Khám phá thế giới với những trải nghiệm du lịch đáng nhớ.{" "}
+            Traveline đồng hành cùng bạn trên mọi hành trình với dịch vụ tận tâm
+            và hiện đại.
           </p>
           <div className="app-footer__social">
             <a href="#" className="app-footer__social-link" aria-label="Facebook">
@@ -108,7 +119,7 @@ const AppFooter = () => {
       <div className="app-footer__bottom">
         <div className="app-footer__bottom-container">
           <p className="app-footer__copyright">
-            © 2024 Bone Travel. Tất cả quyền được bảo lưu.
+            © 2024 Traveline. Tất cả quyền được bảo lưu.
           </p>
           <div className="app-footer__payments">
             <span className="app-footer__payments-label">Chấp nhận thanh toán:</span>

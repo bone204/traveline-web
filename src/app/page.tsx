@@ -22,21 +22,21 @@ export default async function HomePage() {
       <TestimonialSection />
 
       {featuredLocations.length > 0 && (
-        <LocationSection
-          title="Điểm đến nổi bật"
+      <LocationSection
+        title="Điểm đến nổi bật"
           subtitle="Những địa điểm được yêu thích nhất trên Traveline"
-          locations={featuredLocations}
-          className="location-section--featured"
-        />
+        locations={featuredLocations}
+        className="location-section--featured"
+      />
       )}
 
       {domesticLocations.length > 0 && (
-        <LocationSection
+      <LocationSection
           title="Khám phá Việt Nam"
           subtitle="Những điểm đến hấp dẫn dành cho hành trình tiếp theo của bạn"
-          locations={domesticLocations}
-          className="location-section--domestic"
-        />
+        locations={domesticLocations}
+        className="location-section--domestic"
+      />
       )}
     </div>
   );

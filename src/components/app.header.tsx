@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoginModal } from "./login.modal";
+import travelIcon from "@/assets/icon/travel.svg";
 
 type NavItem = {
   label: string;
@@ -14,7 +16,7 @@ const navItems: NavItem[] = [
   { label: "Điểm đến", href: "/bone" },
   { label: "Tour", href: "/empty-page" },
   { label: "Khách sạn", href: "/empty-page" },
-  { label: "Liên hệ", href: "/empty-page" }
+  { label: "Liên hệ", href: "/empty-page" },
 ];
 
 function AppHeader() {
@@ -42,8 +44,16 @@ function AppHeader() {
     >
       <div className="app-header-inner">
         <Link href="/" className="brand" aria-label="Trang chủ">
-          <span className="brand-icon">✈</span>
-          <span className="brand-text">Bone Travel</span>
+          <span className="brand-icon">
+            <Image
+              src={travelIcon}
+              alt="Biểu tượng Traveline"
+              width={28}
+              height={28}
+              priority
+            />
+          </span>
+          <span className="brand-text">Traveline</span>
         </Link>
         <div className="app-header__actions">
           <nav className="tabs" role="tablist" aria-label="Điều hướng chính">
@@ -70,13 +80,19 @@ function AppHeader() {
             >
               Đăng nhập
             </button>
-            <Link href="/empty-page" className="app-header__auth-btn app-header__auth-btn--register">
+            <Link
+              href="/empty-page"
+              className="app-header__auth-btn app-header__auth-btn--register"
+            >
               Đăng ký
             </Link>
           </div>
         </div>
       </div>
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </header>
   );
 }
