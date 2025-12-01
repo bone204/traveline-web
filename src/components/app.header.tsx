@@ -12,9 +12,9 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Điểm đến", href: "/bone" },
-  { label: "Tour", href: "/tours" },
-  { label: "Khách sạn", href: "/hotels" },
-  { label: "Liên hệ", href: "/contact" }
+  { label: "Tour", href: "/empty-page" },
+  { label: "Khách sạn", href: "/empty-page" },
+  { label: "Liên hệ", href: "/empty-page" }
 ];
 
 function AppHeader() {
@@ -70,7 +70,7 @@ function AppHeader() {
             >
               Đăng nhập
             </button>
-            <Link href="/register" className="app-header__auth-btn app-header__auth-btn--register">
+            <Link href="/empty-page" className="app-header__auth-btn app-header__auth-btn--register">
               Đăng ký
             </Link>
           </div>

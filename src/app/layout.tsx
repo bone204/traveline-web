@@ -1,8 +1,7 @@
 'use client';
 import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import AppHeader from "@/components/app.header";
-import AppFooter from "@/components/app.footer";
+import { LayoutWrapper } from "@/components/layout.wrapper";
 
 export default function RootLayout({
   children,
@@ -10,11 +9,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+      </head>
       <body suppressHydrationWarning>
-        <AppHeader />
-        <main className="app-shell">{children}</main>
-        <AppFooter />
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );

@@ -110,7 +110,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 <input type="checkbox" />
                 <span>Ghi nhớ đăng nhập</span>
               </label>
-              <Link href="/forgot-password" className="login-modal__forgot" onClick={onClose}>
+              <Link href="/empty-page" className="login-modal__forgot" onClick={onClose}>
                 Quên mật khẩu?
               </Link>
             </div>
@@ -147,7 +147,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
             <p className="login-modal__signup">
               Chưa có tài khoản?{" "}
-              <Link href="/register" className="login-modal__signup-link" onClick={onClose}>
+              <Link href="/empty-page" className="login-modal__signup-link" onClick={onClose}>
                 Đăng ký ngay
               </Link>
             </p>

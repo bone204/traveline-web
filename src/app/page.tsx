@@ -15,7 +15,7 @@ const domesticLocations: LocationCardProps[] = [
     price: "2.5tr",
     rating: 4.8,
     location: "Miền Trung",
-    href: "/locations/da-nang",
+    href: "/empty-page",
   },
   {
     id: "ha-long",
@@ -25,7 +25,7 @@ const domesticLocations: LocationCardProps[] = [
     price: "3.2tr",
     rating: 4.9,
     location: "Quảng Ninh",
-    href: "/locations/ha-long",
+    href: "/empty-page",
   },
   {
     id: "sapa",
@@ -35,7 +35,7 @@ const domesticLocations: LocationCardProps[] = [
     price: "2.8tr",
     rating: 4.7,
     location: "Lào Cai",
-    href: "/locations/sapa",
+    href: "/empty-page",
   },
   {
     id: "phu-quoc",
@@ -45,7 +45,7 @@ const domesticLocations: LocationCardProps[] = [
     price: "4.5tr",
     rating: 4.8,
     location: "Kiên Giang",
-    href: "/locations/phu-quoc",
+    href: "/empty-page",
   },
 ];
 
@@ -59,7 +59,7 @@ const featuredLocations: LocationCardProps[] = [
     price: "18tr",
     rating: 4.9,
     location: "Thổ Nhĩ Kỳ",
-    href: "/locations/cappadocia",
+    href: "/empty-page",
   },
   {
     id: "santorini",
@@ -69,7 +69,7 @@ const featuredLocations: LocationCardProps[] = [
     price: "22tr",
     rating: 4.9,
     location: "Hy Lạp",
-    href: "/locations/santorini",
+    href: "/empty-page",
   },
   {
     id: "maldives",
@@ -79,7 +79,7 @@ const featuredLocations: LocationCardProps[] = [
     price: "35tr",
     rating: 5.0,
     location: "Maldives",
-    href: "/locations/maldives",
+    href: "/empty-page",
   },
 ];
 

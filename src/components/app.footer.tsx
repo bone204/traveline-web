@@ -44,11 +44,11 @@ const AppFooter = () => {
         <div className="app-footer__column">
           <h3 className="app-footer__title">Về chúng tôi</h3>
           <ul className="app-footer__list">
-            <li><Link href="/about">Giới thiệu</Link></li>
-            <li><Link href="/careers">Tuyển dụng</Link></li>
-            <li><Link href="/blog">Tin tức & Blog</Link></li>
-            <li><Link href="/partners">Đối tác</Link></li>
-            <li><Link href="/contact">Liên hệ</Link></li>
+            <li><Link href="/empty-page">Giới thiệu</Link></li>
+            <li><Link href="/empty-page">Tuyển dụng</Link></li>
+            <li><Link href="/empty-page">Tin tức & Blog</Link></li>
+            <li><Link href="/empty-page">Đối tác</Link></li>
+            <li><Link href="/empty-page">Liên hệ</Link></li>
           </ul>
         </div>
 
@@ -56,11 +56,11 @@ const AppFooter = () => {
         <div className="app-footer__column">
           <h3 className="app-footer__title">Dịch vụ</h3>
           <ul className="app-footer__list">
-            <li><Link href="/tours">Tour du lịch</Link></li>
-            <li><Link href="/hotels">Đặt khách sạn</Link></li>
-            <li><Link href="/flights">Vé máy bay</Link></li>
-            <li><Link href="/visa">Dịch vụ visa</Link></li>
-            <li><Link href="/insurance">Bảo hiểm du lịch</Link></li>
+            <li><Link href="/empty-page">Tour du lịch</Link></li>
+            <li><Link href="/empty-page">Đặt khách sạn</Link></li>
+            <li><Link href="/empty-page">Vé máy bay</Link></li>
+            <li><Link href="/empty-page">Dịch vụ visa</Link></li>
+            <li><Link href="/empty-page">Bảo hiểm du lịch</Link></li>
           </ul>
         </div>
 
@@ -68,11 +68,11 @@ const AppFooter = () => {
         <div className="app-footer__column">
           <h3 className="app-footer__title">Hỗ trợ</h3>
           <ul className="app-footer__list">
-            <li><Link href="/faq">Câu hỏi thường gặp</Link></li>
-            <li><Link href="/guide">Hướng dẫn đặt tour</Link></li>
-            <li><Link href="/terms">Điều khoản sử dụng</Link></li>
-            <li><Link href="/privacy">Chính sách bảo mật</Link></li>
-            <li><Link href="/refund">Chính sách hoàn tiền</Link></li>
+            <li><Link href="/empty-page">Câu hỏi thường gặp</Link></li>
+            <li><Link href="/empty-page">Hướng dẫn đặt tour</Link></li>
+            <li><Link href="/empty-page">Điều khoản sử dụng</Link></li>
+            <li><Link href="/empty-page">Chính sách bảo mật</Link></li>
+            <li><Link href="/empty-page">Chính sách hoàn tiền</Link></li>
           </ul>
         </div>
 
