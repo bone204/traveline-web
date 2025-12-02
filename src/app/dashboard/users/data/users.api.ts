@@ -57,3 +57,22 @@ export async function fetchUsers(): Promise<UserItem[]> {
     };
   });
 }
+
+export async function deleteUser(userId: number): Promise<void> {
+  const token = getAccessToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    method: "DELETE",
+    headers,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Failed to delete user", res.status, text);
+    throw new ApiError(text || `Delete user failed: ${res.status}`, res.status);
+  }
+}

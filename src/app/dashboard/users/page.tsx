@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchUsers, ApiError, type UserItem } from "./data/users.api";
+import { fetchUsers, deleteUser, ApiError, type UserItem } from "./data/users.api";
 import { logout } from "@/services/auth.service";
 
 export default function UserPage() {
@@ -12,27 +12,9 @@ export default function UserPage() {
     const [errorStatus, setErrorStatus] = useState<number | null>(null);
     const [q, setQ] = useState<string>("");
     const [page, setPage] = useState<number>(1);
-    
-    // Dynamic page size based on screen height
-    const [pageSize, setPageSize] = useState<number>(10);
+    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+    const pageSize = 6;
     const router = useRouter();
-
-    // Calculate optimal page size based on viewport height
-    useEffect(() => {
-        const calculatePageSize = () => {
-            const vh = window.innerHeight;
-            // Subtract space for header (~100px), search bar (~80px), pagination (~80px)
-            // Each row is ~57px
-            const availableHeight = vh - 260;
-            const rowHeight = 57;
-            const optimalSize = Math.max(5, Math.floor(availableHeight / rowHeight));
-            setPageSize(optimalSize);
-        };
-
-        calculatePageSize();
-        window.addEventListener('resize', calculatePageSize);
-        return () => window.removeEventListener('resize', calculatePageSize);
-    }, []);
 
     useEffect(() => {
         let mounted = true;
@@ -66,12 +48,6 @@ export default function UserPage() {
     const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     const currentPage = Math.min(page, totalPages);
     const pageData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-    const getTierBadgeClass = (tier?: string) => {
-        if (!tier) return "user-table-badge";
-        const normalized = tier.toLowerCase().replace(/\s/g, "_");
-        return `user-table-badge user-table-badge--${normalized}`;
-    };
 
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return "—";
@@ -111,8 +87,21 @@ export default function UserPage() {
         router.replace("/");
     };
 
+    const handleDeleteUser = async (userId: number) => {
+        if (!confirm("Bạn có chắc chắn muốn xóa người dùng này?")) return;
+        
+        try {
+            await deleteUser(userId);
+            setUsers(users.filter(u => u.id !== userId));
+            setOpenDropdown(null);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Không thể xóa người dùng";
+            alert(msg);
+        }
+    };
+
     return (
-        <div className="user-view">
+        <div className="user-view" onClick={() => setOpenDropdown(null)}>
 
             {loading && (
                 <div className="user-loading">
@@ -163,14 +152,15 @@ export default function UserPage() {
                                         <th style={{ width: "200px" }}>Họ và tên</th>
                                         <th style={{ width: "200px" }}>Email</th>
                                         <th style={{ width: "130px" }}>Số điện thoại</th>
-                                        <th style={{ width: "150px" }}>Hạng thành viên</th>
-                                        <th style={{ width: "180px" }}>Ngày tạo</th>
+                                        <th style={{ width: "120px" }}>Hạng</th>
+                                        <th style={{ width: "150px" }}>Ngày tạo</th>
+                                        <th style={{ width: "60px" }}></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {pageData.length === 0 ? (
                                         <tr>
-                                            <td colSpan={7} style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
+                                            <td colSpan={8} style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
                                                 Không tìm thấy người dùng nào
                                             </td>
                                         </tr>
@@ -182,13 +172,34 @@ export default function UserPage() {
                                                 <td>{user.fullName || "—"}</td>
                                                 <td style={{ color: "#64748b" }}>{user.email || "—"}</td>
                                                 <td style={{ color: "#64748b" }}>{user.phone || "—"}</td>
-                                                <td>
-                                                    <span className={getTierBadgeClass(user.userTier)}>
-                                                        {user.userTier || "—"}
-                                                    </span>
-                                                </td>
+                                                <td style={{ color: "#64748b" }}>{user.userTier || "—"}</td>
                                                 <td style={{ color: "#64748b", fontSize: "0.85rem" }}>
                                                     {formatDate(user.createdAt)}
+                                                </td>
+                                                <td style={{ position: "relative" }}>
+                                                    <button
+                                                        className="user-action-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setOpenDropdown(openDropdown === user.id ? null : user.id);
+                                                        }}
+                                                    >
+                                                        ⋮
+                                                    </button>
+                                                    {openDropdown === user.id && (
+                                                        <div className="user-dropdown" onClick={(e) => e.stopPropagation()}>
+                                                            <button
+                                                                className="user-dropdown-item user-dropdown-item--danger"
+                                                                onClick={() => handleDeleteUser(user.id)}
+                                                            >
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                    <polyline points="3 6 5 6 21 6" />
+                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                                </svg>
+                                                                Xóa
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))
