@@ -1,11 +1,11 @@
 "use client";
 
-export default function BoardPage() {
+export default function UserPage() {
   return (
-    <div className="board-view">
-      <div className="board-header">
-        <h1 className="board-title">Board</h1>
-        <div className="board-filters">
+        <div className="user-view">
+            <div className="user-header">
+                <h1 className="user-title">Users</h1>
+                <div className="user-filters">
             <span className="filter-text">This week</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 9l6 6 6-6"/>
@@ -13,9 +13,9 @@ export default function BoardPage() {
         </div>
       </div>
 
-      <div className="board-columns">
+            <div className="user-columns">
         {/* To do Column */}
-        <div className="board-column">
+                <div className="user-column">
           <div className="column-header">
             <div className="header-left">
                 <div className="status-indicator todo"></div>
@@ -61,7 +61,7 @@ export default function BoardPage() {
         </div>
 
         {/* In Progress Column */}
-        <div className="board-column">
+                <div className="user-column">
           <div className="column-header">
             <div className="header-left">
                 <div className="status-indicator progress"></div>
@@ -93,7 +93,7 @@ export default function BoardPage() {
         </div>
 
         {/* Done Column */}
-        <div className="board-column">
+                <div className="user-column">
           <div className="column-header">
             <div className="header-left">
                 <div className="status-indicator done"></div>

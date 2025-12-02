@@ -1,9 +1,9 @@
 "use client";
 
-export default function SettingsPage() {
+export default function PartnersPage() {
   return (
     <div className="dashboard-page-placeholder">
-      <h1 className="dashboard-title">Settings</h1>
+      <h1 className="dashboard-title">Partners</h1>
       <div className="settings-list">
         <div className="setting-item">
             <h3>Profile Settings</h3>
