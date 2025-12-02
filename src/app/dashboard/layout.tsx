@@ -42,7 +42,7 @@ export default function DashboardLayout({
     <div className="dashboard-layout-v2">
       <DashboardSidebar />
       <div className="dashboard-main-container">
-        <main className="dashboard-content-area no-header-padding">
+        <main className="dashboard-content-area">
           {children}
         </main>
       </div>
