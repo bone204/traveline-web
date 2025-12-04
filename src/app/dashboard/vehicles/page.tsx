@@ -83,8 +83,14 @@ export default function VehiclesPage() {
     const pageData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const getStatusBadgeClass = (status: VehicleApprovalStatus) => {
-        const baseClass = "vehicle-status-badge";
-        return `${baseClass} ${baseClass}--${status}`;
+        const baseClass = "dashboard-badge";
+        switch (status) {
+            case VehicleApprovalStatus.APPROVED: return `${baseClass} ${baseClass}--success`;
+            case VehicleApprovalStatus.PENDING: return `${baseClass} ${baseClass}--warning`;
+            case VehicleApprovalStatus.REJECTED: return `${baseClass} ${baseClass}--danger`;
+            case VehicleApprovalStatus.INACTIVE: return `${baseClass} ${baseClass}--neutral`;
+            default: return `${baseClass} ${baseClass}--neutral`;
+        }
     };
 
     const getStatusText = (status: VehicleApprovalStatus) => {
@@ -103,8 +109,13 @@ export default function VehiclesPage() {
     };
 
     const getAvailabilityBadgeClass = (availability: VehicleAvailabilityStatus) => {
-        const baseClass = "vehicle-availability-badge";
-        return `${baseClass} ${baseClass}--${availability}`;
+        const baseClass = "dashboard-badge";
+        switch (availability) {
+            case VehicleAvailabilityStatus.AVAILABLE: return `${baseClass} ${baseClass}--success`;
+            case VehicleAvailabilityStatus.RENTED: return `${baseClass} ${baseClass}--info`;
+            case VehicleAvailabilityStatus.MAINTENANCE: return `${baseClass} ${baseClass}--warning`;
+            default: return `${baseClass} ${baseClass}--neutral`;
+        }
     };
 
     const getAvailabilityText = (availability: VehicleAvailabilityStatus) => {
@@ -217,7 +228,7 @@ export default function VehiclesPage() {
 
     if (loading) {
         return (
-            <div className="vehicle-view">
+            <div className="dashboard-view">
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh", flexDirection: "column", gap: "1rem" }}>
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}>
                         <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
@@ -231,7 +242,7 @@ export default function VehiclesPage() {
 
     if (error) {
         return (
-            <div className="vehicle-view">
+            <div className="dashboard-view">
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh", flexDirection: "column", gap: "1rem" }}>
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: "0 auto 1rem" }}>
                         <circle cx="12" cy="12" r="10" />
@@ -276,10 +287,10 @@ export default function VehiclesPage() {
     }
 
     return (
-        <div className="vehicle-view" onClick={() => setOpenDropdown(null)}>
+        <div className="dashboard-view" onClick={() => setOpenDropdown(null)}>
 
             {loading && (
-                <div className="vehicle-loading">
+                <div className="dashboard-loading">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}>
                         <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                     </svg>
@@ -288,7 +299,7 @@ export default function VehiclesPage() {
             )}
 
             {error && !loading && (
-                <div className="vehicle-error">
+                <div className="dashboard-error">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: "0 auto 1rem" }}>
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="8" x2="12" y2="12" />
@@ -296,11 +307,11 @@ export default function VehiclesPage() {
                     </svg>
                     <p style={{ marginBottom: "0.5rem", fontWeight: 600 }}>Không thể tải dữ liệu</p>
                     <p style={{ fontSize: "0.9rem", color: "#64748b" }}>{error}</p>
-                    <div className="vehicle-error-actions">
+                    <div className="dashboard-error-actions">
                         {errorStatus === 401 ? (
-                            <button onClick={handleLogout} className="vehicle-btn vehicle-btn--primary">Đăng nhập</button>
+                            <button onClick={handleLogout} className="dashboard-btn dashboard-btn--primary">Đăng nhập</button>
                         ) : (
-                            <button onClick={handleRetry} className="vehicle-btn vehicle-btn--primary">Thử lại</button>
+                            <button onClick={handleRetry} className="dashboard-btn dashboard-btn--primary">Thử lại</button>
                         )}
                     </div>
                 </div>
@@ -308,15 +319,15 @@ export default function VehiclesPage() {
 
             {!loading && !error && (
                 <>
-            <div className="vehicle-toolbar">
+            <div className="dashboard-toolbar">
                 <input
-                    className="vehicle-search"
+                    className="dashboard-search"
                     value={q}
                     onChange={(e) => { setQ(e.target.value); setPage(1); }}
                     placeholder="🔍 Tìm kiếm theo biển số, mô tả, ID hợp đồng..."
                 />
                 <select
-                    className="vehicle-search"
+                    className="dashboard-search"
                     value={statusFilter}
                     onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                     style={{ maxWidth: "200px" }}
@@ -333,9 +344,9 @@ export default function VehiclesPage() {
                         <option value="MAINTENANCE">Bảo trì</option>
                     </optgroup>
                 </select>
-            </div>                    <div className="vehicle-table-container">
-                        <div className="vehicle-table-wrapper">
-                            <table className="vehicle-table">
+            </div>                    <div className="dashboard-table-container">
+                        <div className="dashboard-table-wrapper">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th style={{ width: "110px" }}>Biển số</th>
@@ -403,9 +414,9 @@ export default function VehiclesPage() {
                                                             </td>
                                                         </>
                                                     )}
-                                                    <td className="vehicle-action-cell">
+                                                    <td className="dashboard-action-cell">
                                                         <button
-                                                            className="vehicle-action-btn"
+                                                            className="dashboard-action-btn"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 const rect = e.currentTarget.getBoundingClientRect();
@@ -434,13 +445,13 @@ export default function VehiclesPage() {
                             </table>
                         </div>
 
-                        <div className="vehicle-pagination">
-                            <div className="vehicle-pagination-info">
+                        <div className="dashboard-pagination">
+                            <div className="dashboard-pagination-info">
                                 Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filtered.length)} trong tổng số {filtered.length} xe
                             </div>
-                            <div className="vehicle-pagination-controls">
+                            <div className="dashboard-pagination-controls">
                                 <button
-                                    className="vehicle-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage <= 1}
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                 >
@@ -450,7 +461,7 @@ export default function VehiclesPage() {
                                     {currentPage} / {totalPages}
                                 </span>
                                 <button
-                                    className="vehicle-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage >= totalPages}
                                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 >
@@ -465,7 +476,7 @@ export default function VehiclesPage() {
             {/* Dropdown menu - rendered outside table */}
             {openDropdown && dropdownPosition && (
                 <div 
-                    className="vehicle-dropdown-fixed"
+                    className="dashboard-dropdown-fixed"
                     style={{
                         position: 'fixed',
                         top: `${dropdownPosition.top}px`,
@@ -479,7 +490,7 @@ export default function VehiclesPage() {
                         return (
                             <>
                                 <button
-                                    className="vehicle-dropdown-item"
+                                    className="dashboard-dropdown-item"
                                     onClick={() => handleViewDetail(vehicle)}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -491,7 +502,7 @@ export default function VehiclesPage() {
                                 {vehicle.status === VehicleApprovalStatus.PENDING && (
                                     <>
                                         <button
-                                            className="vehicle-dropdown-item vehicle-dropdown-item--success"
+                                            className="dashboard-dropdown-item dashboard-dropdown-item--success"
                                             onClick={() => handleApproveVehicle(vehicle.licensePlate)}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -500,7 +511,7 @@ export default function VehiclesPage() {
                                             Duyệt
                                         </button>
                                         <button
-                                            className="vehicle-dropdown-item vehicle-dropdown-item--warning"
+                                            className="dashboard-dropdown-item dashboard-dropdown-item--warning"
                                             onClick={() => handleRejectVehicle(vehicle.licensePlate)}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -512,7 +523,7 @@ export default function VehiclesPage() {
                                     </>
                                 )}
                                 <button
-                                    className="vehicle-dropdown-item vehicle-dropdown-item--danger"
+                                    className="dashboard-dropdown-item dashboard-dropdown-item--danger"
                                     onClick={() => handleDeleteVehicle(vehicle.licensePlate)}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -528,88 +539,88 @@ export default function VehiclesPage() {
             )}
 
             {selectedVehicle && (
-                <div className="vehicle-modal-overlay" onClick={handleCloseModal}>
-                    <div className="vehicle-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="vehicle-modal-header">
+                <div className="dashboard-modal-overlay" onClick={handleCloseModal}>
+                    <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="dashboard-modal-header">
                             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                <h2 className="vehicle-modal-title">Chi tiết xe {selectedVehicle.licensePlate}</h2>
+                                <h2 className="dashboard-modal-title">Chi tiết xe {selectedVehicle.licensePlate}</h2>
                                 <span className={getStatusBadgeClass(selectedVehicle.status)}>
                                     {getStatusText(selectedVehicle.status)}
                                 </span>
                             </div>
-                            <button className="vehicle-modal-close" onClick={handleCloseModal}>
+                            <button className="dashboard-modal-close" onClick={handleCloseModal}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <line x1="18" y1="6" x2="6" y2="18" />
                                     <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="vehicle-modal-body">
-                            <div className="vehicle-detail-section">
-                                <h3 className="vehicle-detail-section-title">Thông tin cơ bản</h3>
-                                <div className="vehicle-detail-grid">
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Biển số xe:</span>
-                                        <span className="vehicle-detail-value">{selectedVehicle.licensePlate}</span>
+                        <div className="dashboard-modal-body">
+                            <div className="dashboard-detail-section">
+                                <h3 className="dashboard-detail-section-title">Thông tin cơ bản</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Biển số xe:</span>
+                                        <span className="dashboard-detail-value">{selectedVehicle.licensePlate}</span>
                                     </div>
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Hợp đồng:</span>
-                                        <span className="vehicle-detail-value">#{selectedVehicle.contractId}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Hợp đồng:</span>
+                                        <span className="dashboard-detail-value">#{selectedVehicle.contractId}</span>
                                     </div>
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Giá thuê giờ:</span>
-                                        <span className="vehicle-detail-value">{formatPrice(selectedVehicle.pricePerHour)}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Giá thuê giờ:</span>
+                                        <span className="dashboard-detail-value">{formatPrice(selectedVehicle.pricePerHour)}</span>
                                     </div>
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Giá thuê ngày:</span>
-                                        <span className="vehicle-detail-value">{formatPrice(selectedVehicle.pricePerDay)}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Giá thuê ngày:</span>
+                                        <span className="dashboard-detail-value">{formatPrice(selectedVehicle.pricePerDay)}</span>
                                     </div>
                                     {selectedVehicle.description && (
-                                        <div className="vehicle-detail-item" style={{ gridColumn: "1 / -1" }}>
-                                            <span className="vehicle-detail-label">Mô tả:</span>
-                                            <span className="vehicle-detail-value">{selectedVehicle.description}</span>
+                                        <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
+                                            <span className="dashboard-detail-label">Mô tả:</span>
+                                            <span className="dashboard-detail-value">{selectedVehicle.description}</span>
                                         </div>
                                     )}
                                     {selectedVehicle.requirements && (
-                                        <div className="vehicle-detail-item" style={{ gridColumn: "1 / -1" }}>
-                                            <span className="vehicle-detail-label">Yêu cầu:</span>
-                                            <span className="vehicle-detail-value">{selectedVehicle.requirements}</span>
+                                        <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
+                                            <span className="dashboard-detail-label">Yêu cầu:</span>
+                                            <span className="dashboard-detail-value">{selectedVehicle.requirements}</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="vehicle-detail-section">
-                                <h3 className="vehicle-detail-section-title">Trạng thái & Thống kê</h3>
-                                <div className="vehicle-detail-grid">
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Tình trạng:</span>
+                            <div className="dashboard-detail-section">
+                                <h3 className="dashboard-detail-section-title">Trạng thái & Thống kê</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Tình trạng:</span>
                                         <span className={getAvailabilityBadgeClass(selectedVehicle.availability)}>
                                             {getAvailabilityText(selectedVehicle.availability)}
                                         </span>
                                     </div>
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Tổng lượt thuê:</span>
-                                        <span className="vehicle-detail-value">{selectedVehicle.totalRentals}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Tổng lượt thuê:</span>
+                                        <span className="dashboard-detail-value">{selectedVehicle.totalRentals}</span>
                                     </div>
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Đánh giá TB:</span>
-                                        <span className="vehicle-detail-value">{selectedVehicle.averageRating ? selectedVehicle.averageRating.toFixed(1) : "—"}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Đánh giá TB:</span>
+                                        <span className="dashboard-detail-value">{selectedVehicle.averageRating ? selectedVehicle.averageRating.toFixed(1) : "—"}</span>
                                     </div>
-                                    <div className="vehicle-detail-item">
-                                        <span className="vehicle-detail-label">Ngày tạo:</span>
-                                        <span className="vehicle-detail-value">{formatDate(selectedVehicle.createdAt)}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Ngày tạo:</span>
+                                        <span className="dashboard-detail-value">{formatDate(selectedVehicle.createdAt)}</span>
                                     </div>
                                     {selectedVehicle.updatedAt && (
-                                        <div className="vehicle-detail-item">
-                                            <span className="vehicle-detail-label">Cập nhật lúc:</span>
-                                            <span className="vehicle-detail-value">{formatDate(selectedVehicle.updatedAt)}</span>
+                                        <div className="dashboard-detail-item">
+                                            <span className="dashboard-detail-label">Cập nhật lúc:</span>
+                                            <span className="dashboard-detail-value">{formatDate(selectedVehicle.updatedAt)}</span>
                                         </div>
                                     )}
                                     {selectedVehicle.rejectedReason && (
-                                        <div className="vehicle-detail-item" style={{ gridColumn: "1 / -1" }}>
-                                            <span className="vehicle-detail-label">Lý do từ chối:</span>
-                                            <span className="vehicle-detail-value" style={{ color: "#dc2626" }}>{selectedVehicle.rejectedReason}</span>
+                                        <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
+                                            <span className="dashboard-detail-label">Lý do từ chối:</span>
+                                            <span className="dashboard-detail-value" style={{ color: "#dc2626" }}>{selectedVehicle.rejectedReason}</span>
                                         </div>
                                     )}
                                 </div>

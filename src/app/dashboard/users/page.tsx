@@ -127,31 +127,25 @@ export default function UserPage() {
     };
 
     return (
-        <div className="user-view" onClick={() => setOpenDropdown(null)}>
+        <div className="dashboard-view" onClick={() => setOpenDropdown(null)}>
 
             {loading && (
-                <div className="user-loading">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}>
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                    </svg>
+                <div className="dashboard-loading">
+                    <div className="dashboard-spinner"></div>
                     <p style={{ marginTop: "1rem" }}>Đang tải dữ liệu...</p>
                 </div>
             )}
 
             {error && !loading && (
-                <div className="user-error">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: "0 auto 1rem" }}>
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                    </svg>
+                <div className="dashboard-error">
+                    <div className="dashboard-error-icon">⚠️</div>
                     <p style={{ marginBottom: "0.5rem", fontWeight: 600 }}>Không thể tải dữ liệu</p>
-                    <p style={{ fontSize: "0.9rem", color: "#64748b" }}>{error}</p>
-                    <div className="user-error-actions">
+                    <p className="dashboard-error-message">{error}</p>
+                    <div className="dashboard-error-actions">
                         {errorStatus === 401 ? (
-                            <button onClick={handleLoginRedirect} className="user-btn user-btn--primary">Đăng nhập</button>
+                            <button onClick={handleLoginRedirect} className="dashboard-btn dashboard-btn--primary">Đăng nhập</button>
                         ) : (
-                            <button onClick={handleRetry} className="user-btn user-btn--primary">Thử lại</button>
+                            <button onClick={handleRetry} className="dashboard-btn dashboard-btn--primary">Thử lại</button>
                         )}
                     </div>
                 </div>
@@ -159,15 +153,15 @@ export default function UserPage() {
 
             {!loading && !error && (
                 <>
-                    <div className="user-toolbar">
+                    <div className="dashboard-toolbar">
                         <input
-                            className="user-search"
+                            className="dashboard-search"
                             value={q}
                             onChange={(e) => { setQ(e.target.value); setPage(1); }}
                             placeholder="🔍 Tìm kiếm theo username, họ tên, email, số điện thoại..."
                         />
                         <select
-                            className="user-search"
+                            className="dashboard-search"
                             value={tierFilter}
                             onChange={(e) => { setTierFilter(e.target.value); setPage(1); }}
                             style={{ maxWidth: "200px" }}
@@ -183,9 +177,9 @@ export default function UserPage() {
                         </select>
                     </div>
 
-                    <div className="user-table-container">
-                        <div className="user-table-wrapper">
-                            <table className="user-table">
+                    <div className="dashboard-table-container">
+                        <div className="dashboard-table-wrapper">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th style={{ width: "60px" }}>ID</th>
@@ -217,9 +211,9 @@ export default function UserPage() {
                                                 <td style={{ color: "#64748b", fontSize: "0.85rem" }}>
                                                     {formatDate(user.createdAt)}
                                                 </td>
-                                                <td className="user-action-cell">
+                                                <td className="dashboard-action-cell">
                                                     <button
-                                                        className="user-action-btn"
+                                                        className="dashboard-action-btn"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             const rect = e.currentTarget.getBoundingClientRect();
@@ -246,13 +240,13 @@ export default function UserPage() {
                             </table>
                         </div>
 
-                        <div className="user-pagination">
-                            <div className="user-pagination-info">
+                        <div className="dashboard-pagination">
+                            <div className="dashboard-pagination-info">
                                 Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filtered.length)} trong tổng số {filtered.length} người dùng
                             </div>
-                            <div className="user-pagination-controls">
+                            <div className="dashboard-pagination-controls">
                                 <button 
-                                    className="user-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage <= 1} 
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                 >
@@ -262,7 +256,7 @@ export default function UserPage() {
                                     {currentPage} / {totalPages}
                                 </span>
                                 <button 
-                                    className="user-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage >= totalPages} 
                                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 >
@@ -277,7 +271,7 @@ export default function UserPage() {
             {/* Dropdown menu - rendered outside table */}
             {openDropdown && dropdownPosition && (
                 <div 
-                    className="user-dropdown-fixed"
+                    className="dashboard-dropdown-fixed"
                     style={{
                         position: 'fixed',
                         top: `${dropdownPosition.top}px`,
@@ -290,7 +284,7 @@ export default function UserPage() {
                         const user = pageData.find(u => u.id === openDropdown)!;
                         return (
                             <button
-                                className="user-dropdown-item user-dropdown-item--danger"
+                                className="dashboard-dropdown-item dashboard-dropdown-item--danger"
                                 onClick={() => handleDeleteUser(user.id)}
                             >
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

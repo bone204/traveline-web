@@ -46,9 +46,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         username: formData.username,
         password: formData.password,
       }).unwrap();
-      
-      // Login successful, close modal and redirect to dashboard
-      onClose();
+      // Login successful: navigate to dashboard. Modal will unmount.
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
@@ -74,9 +72,9 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="login-modal" onClick={onClose}>
+    <div className="login-modal" onClick={() => { if (!isLoading) onClose(); }}>
       <div className="login-modal__content" onClick={(e) => e.stopPropagation()}>
-        <button className="login-modal__close" onClick={onClose} aria-label="Đóng">
+        <button className="login-modal__close" onClick={() => { if (!isLoading) onClose(); }} aria-label="Đóng">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>

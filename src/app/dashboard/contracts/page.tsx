@@ -76,8 +76,14 @@ export default function ContractsPage() {
     const pageData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const getStatusBadgeClass = (status: ContractStatus) => {
-        const baseClass = "contract-status-badge";
-        return `${baseClass} ${baseClass}--${status}`;
+        const baseClass = "dashboard-badge";
+        switch (status) {
+            case ContractStatus.APPROVED: return `${baseClass} ${baseClass}--success`;
+            case ContractStatus.PENDING: return `${baseClass} ${baseClass}--warning`;
+            case ContractStatus.REJECTED: return `${baseClass} ${baseClass}--danger`;
+            case ContractStatus.SUSPENDED: return `${baseClass} ${baseClass}--neutral`;
+            default: return `${baseClass} ${baseClass}--neutral`;
+        }
     };
 
     const getStatusText = (status: ContractStatus) => {
@@ -187,10 +193,10 @@ export default function ContractsPage() {
     };
 
     return (
-        <div className="contract-view" onClick={() => setOpenDropdown(null)}>
+        <div className="dashboard-view" onClick={() => setOpenDropdown(null)}>
 
             {loading && (
-                <div className="contract-loading">
+                <div className="dashboard-loading">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}>
                         <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                     </svg>
@@ -199,7 +205,7 @@ export default function ContractsPage() {
             )}
 
             {error && !loading && (
-                <div className="contract-error">
+                <div className="dashboard-error">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: "0 auto 1rem" }}>
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="8" x2="12" y2="12" />
@@ -207,11 +213,11 @@ export default function ContractsPage() {
                     </svg>
                     <p style={{ marginBottom: "0.5rem", fontWeight: 600 }}>Không thể tải dữ liệu</p>
                     <p style={{ fontSize: "0.9rem", color: "#64748b" }}>{error}</p>
-                    <div className="contract-error-actions">
+                    <div className="dashboard-error-actions">
                         {errorStatus === 401 ? (
-                            <button onClick={handleLoginRedirect} className="contract-btn contract-btn--primary">Đăng nhập</button>
+                            <button onClick={handleLoginRedirect} className="dashboard-btn dashboard-btn--primary">Đăng nhập</button>
                         ) : (
-                            <button onClick={handleRetry} className="contract-btn contract-btn--primary">Thử lại</button>
+                            <button onClick={handleRetry} className="dashboard-btn dashboard-btn--primary">Thử lại</button>
                         )}
                     </div>
                 </div>
@@ -219,15 +225,15 @@ export default function ContractsPage() {
 
             {!loading && !error && (
                 <>
-                    <div className="contract-toolbar">
+                    <div className="dashboard-toolbar">
                         <input
-                            className="contract-search"
+                            className="dashboard-search"
                             value={q}
                             onChange={(e) => { setQ(e.target.value); setPage(1); }}
                             placeholder="🔍 Tìm kiếm theo tên, email, SĐT, CCCD, tên doanh nghiệp..."
                         />
                         <select
-                            className="contract-search"
+                            className="dashboard-search"
                             value={statusFilter}
                             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                             style={{ maxWidth: "200px" }}
@@ -240,9 +246,9 @@ export default function ContractsPage() {
                         </select>
                     </div>
 
-                    <div className="contract-table-container">
-                        <div className="contract-table-wrapper">
-                            <table className="contract-table">
+                    <div className="dashboard-table-container">
+                        <div className="dashboard-table-wrapper">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th style={{ width: "60px" }}>ID</th>
@@ -280,9 +286,9 @@ export default function ContractsPage() {
                                                 <td style={{ color: "#64748b", fontSize: "0.85rem" }}>
                                                     {formatDate(contract.createdAt)}
                                                 </td>
-                                                <td className="contract-action-cell">
+                                                <td className="dashboard-action-cell">
                                                     <button
-                                                        className="contract-action-btn"
+                                                        className="dashboard-action-btn"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             const rect = e.currentTarget.getBoundingClientRect();
@@ -309,13 +315,13 @@ export default function ContractsPage() {
                             </table>
                         </div>
 
-                        <div className="contract-pagination">
-                            <div className="contract-pagination-info">
+                        <div className="dashboard-pagination">
+                            <div className="dashboard-pagination-info">
                                 Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filtered.length)} trong tổng số {filtered.length} hợp đồng
                             </div>
-                            <div className="contract-pagination-controls">
+                            <div className="dashboard-pagination-controls">
                                 <button
-                                    className="contract-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage <= 1}
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                 >
@@ -325,7 +331,7 @@ export default function ContractsPage() {
                                     {currentPage} / {totalPages}
                                 </span>
                                 <button
-                                    className="contract-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage >= totalPages}
                                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 >
@@ -340,7 +346,7 @@ export default function ContractsPage() {
             {/* Dropdown menu - rendered outside table */}
             {openDropdown && dropdownPosition && (
                 <div 
-                    className="contract-dropdown-fixed"
+                    className="dashboard-dropdown-fixed"
                     style={{
                         position: 'fixed',
                         top: `${dropdownPosition.top}px`,
@@ -354,7 +360,7 @@ export default function ContractsPage() {
                         return (
                             <>
                                 <button
-                                    className="contract-dropdown-item"
+                                    className="dashboard-dropdown-item"
                                     onClick={() => handleViewDetail(contract)}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -366,7 +372,7 @@ export default function ContractsPage() {
                                 {contract.status === ContractStatus.PENDING && (
                                     <>
                                         <button
-                                            className="contract-dropdown-item contract-dropdown-item--success"
+                                            className="dashboard-dropdown-item dashboard-dropdown-item--success"
                                             onClick={() => handleApproveContract(contract.id)}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -375,7 +381,7 @@ export default function ContractsPage() {
                                             Duyệt
                                         </button>
                                         <button
-                                            className="contract-dropdown-item contract-dropdown-item--warning"
+                                            className="dashboard-dropdown-item dashboard-dropdown-item--warning"
                                             onClick={() => handleRejectContract(contract.id)}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -387,7 +393,7 @@ export default function ContractsPage() {
                                     </>
                                 )}
                                 <button
-                                    className="contract-dropdown-item contract-dropdown-item--danger"
+                                    className="dashboard-dropdown-item dashboard-dropdown-item--danger"
                                     onClick={() => handleDeleteContract(contract.id)}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -403,74 +409,74 @@ export default function ContractsPage() {
             )}
 
             {selectedContract && (
-                <div className="contract-modal-overlay" onClick={handleCloseModal}>
-                    <div className="contract-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="contract-modal-header">
+                <div className="dashboard-modal-overlay" onClick={handleCloseModal}>
+                    <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="dashboard-modal-header">
                             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                <h2 className="contract-modal-title">Chi tiết hợp đồng #{selectedContract.id}</h2>
+                                <h2 className="dashboard-modal-title">Chi tiết hợp đồng #{selectedContract.id}</h2>
                                 <span className={getStatusBadgeClass(selectedContract.status)}>
                                     {getStatusText(selectedContract.status)}
                                 </span>
                             </div>
-                            <button className="contract-modal-close" onClick={handleCloseModal}>
+                            <button className="dashboard-modal-close" onClick={handleCloseModal}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <line x1="18" y1="6" x2="6" y2="18" />
                                     <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="contract-modal-body">
-                            <div className="contract-detail-section">
-                                <h3 className="contract-detail-section-title">Thông tin người đăng ký</h3>
-                                <div className="contract-detail-grid">
-                                    <div className="contract-detail-item">
-                                        <span className="contract-detail-label">Họ và tên:</span>
-                                        <span className="contract-detail-value">{selectedContract.fullName || "—"}</span>
+                        <div className="dashboard-modal-body">
+                            <div className="dashboard-detail-section">
+                                <h3 className="dashboard-detail-section-title">Thông tin người đăng ký</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Họ và tên:</span>
+                                        <span className="dashboard-detail-value">{selectedContract.fullName || "—"}</span>
                                     </div>
-                                    <div className="contract-detail-item">
-                                        <span className="contract-detail-label">Email:</span>
-                                        <span className="contract-detail-value">{selectedContract.email || "—"}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Email:</span>
+                                        <span className="dashboard-detail-value">{selectedContract.email || "—"}</span>
                                     </div>
-                                    <div className="contract-detail-item">
-                                        <span className="contract-detail-label">Số điện thoại:</span>
-                                        <span className="contract-detail-value">{selectedContract.phoneNumber || "—"}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Số điện thoại:</span>
+                                        <span className="dashboard-detail-value">{selectedContract.phoneNumber || "—"}</span>
                                     </div>
-                                    <div className="contract-detail-item">
-                                        <span className="contract-detail-label">CCCD:</span>
-                                        <span className="contract-detail-value">{selectedContract.citizenId || "—"}</span>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">CCCD:</span>
+                                        <span className="dashboard-detail-value">{selectedContract.citizenId || "—"}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="contract-detail-section">
-                                <h3 className="contract-detail-section-title">Thông tin doanh nghiệp</h3>
-                                <div className="contract-detail-grid">
-                                    <div className="contract-detail-item">
-                                        <span className="contract-detail-label">Loại hình:</span>
-                                        <span className="contract-detail-value">
+                            <div className="dashboard-detail-section">
+                                <h3 className="dashboard-detail-section-title">Thông tin doanh nghiệp</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Loại hình:</span>
+                                        <span className="dashboard-detail-value">
                                             {selectedContract.businessType === "personal" ? "Cá nhân" : "Doanh nghiệp"}
                                         </span>
                                     </div>
                                     {selectedContract.businessName && (
-                                        <div className="contract-detail-item">
-                                            <span className="contract-detail-label">Tên doanh nghiệp:</span>
-                                            <span className="contract-detail-value">{selectedContract.businessName}</span>
+                                        <div className="dashboard-detail-item">
+                                            <span className="dashboard-detail-label">Tên doanh nghiệp:</span>
+                                            <span className="dashboard-detail-value">{selectedContract.businessName}</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="contract-detail-section">
-                                <h3 className="contract-detail-section-title">Thông tin hợp đồng</h3>
-                                <div className="contract-detail-grid">
-                                    <div className="contract-detail-item">
-                                        <span className="contract-detail-label">Ngày tạo:</span>
-                                        <span className="contract-detail-value">{formatDate(selectedContract.createdAt)}</span>
+                            <div className="dashboard-detail-section">
+                                <h3 className="dashboard-detail-section-title">Thông tin hợp đồng</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Ngày tạo:</span>
+                                        <span className="dashboard-detail-value">{formatDate(selectedContract.createdAt)}</span>
                                     </div>
                                     {selectedContract.statusUpdatedAt && (
-                                        <div className="contract-detail-item">
-                                            <span className="contract-detail-label">Cập nhật lúc:</span>
-                                            <span className="contract-detail-value">{formatDate(selectedContract.statusUpdatedAt)}</span>
+                                        <div className="dashboard-detail-item">
+                                            <span className="dashboard-detail-label">Cập nhật lúc:</span>
+                                            <span className="dashboard-detail-value">{formatDate(selectedContract.statusUpdatedAt)}</span>
                                         </div>
                                     )}
                                 </div>

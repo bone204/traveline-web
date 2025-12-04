@@ -32,7 +32,7 @@ export default function DashboardLayout({
   if (isLoading) {
     return (
       <div className="dashboard-loading">
-        <div className="dashboard-loading__spinner"></div>
+        <div className="dashboard-spinner"></div>
         <p>Đang tải...</p>
       </div>
     );

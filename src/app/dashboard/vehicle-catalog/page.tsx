@@ -129,8 +129,8 @@ export default function VehicleCatalogPage() {
 
   if (loading) {
     return (
-      <div className="catalog-loading">
-        <div className="catalog-spinner"></div>
+      <div className="dashboard-loading">
+        <div className="dashboard-spinner"></div>
         Đang tải danh sách danh mục xe...
       </div>
     );
@@ -138,10 +138,10 @@ export default function VehicleCatalogPage() {
 
   if (error) {
     return (
-      <div className="catalog-error">
+      <div className="dashboard-error">
         <p>⚠️ {error}</p>
-        <div className="catalog-error-actions">
-          <button className="catalog-btn catalog-btn--primary" onClick={loadCatalogs}>
+        <div className="dashboard-error-actions">
+          <button className="dashboard-btn dashboard-btn--primary" onClick={loadCatalogs}>
             Thử lại
           </button>
         </div>
@@ -150,19 +150,19 @@ export default function VehicleCatalogPage() {
   }
 
   return (
-    <div className="catalog-view">
-      <div className="catalog-toolbar">
+    <div className="dashboard-view">
+      <div className="dashboard-toolbar">
         <input
           type="text"
           placeholder="🔍 Tìm theo hãng, mẫu xe, màu sắc..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="catalog-search"
+          className="dashboard-search"
         />
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="catalog-search"
+          className="dashboard-search"
           style={{ maxWidth: "200px" }}
         >
           <option value="all">Tất cả loại xe</option>
@@ -175,9 +175,9 @@ export default function VehicleCatalogPage() {
         </select>
       </div>
 
-      <div className="catalog-table-container">
-        <div className="catalog-table-wrapper">
-          <table className="catalog-table">
+      <div className="dashboard-table-container">
+        <div className="dashboard-table-wrapper">
+          <table className="dashboard-table">
             <thead>
               <tr>
                 <th style={{ width: "60px" }}>ID</th>
@@ -211,9 +211,9 @@ export default function VehicleCatalogPage() {
                     <td>{catalog.fuelType || "—"}</td>
                     <td>{catalog.transmission || "—"}</td>
                     <td>{new Date(catalog.createdAt).toLocaleDateString("vi-VN")}</td>
-                    <td className="catalog-action-cell">
+                    <td className="dashboard-action-cell">
                       <button
-                        className="catalog-action-btn"
+                        className="dashboard-action-btn"
                         onClick={(e) => toggleDropdown(catalog.id, e)}
                       >
                         ⋮
@@ -230,7 +230,7 @@ export default function VehicleCatalogPage() {
         {openDropdown !== null && dropdownPosition && (
           <div
             ref={dropdownRef}
-            className="catalog-dropdown-fixed"
+            className="dashboard-dropdown-fixed"
             style={{
               position: "absolute",
               top: `${dropdownPosition.top}px`,
@@ -238,11 +238,11 @@ export default function VehicleCatalogPage() {
               zIndex: 1000,
             }}
           >
-            <button className="catalog-dropdown-item" onClick={() => handleViewDetail(openDropdown)}>
+            <button className="dashboard-dropdown-item" onClick={() => handleViewDetail(openDropdown)}>
               <span>👁️</span> Xem chi tiết
             </button>
             <button
-              className="catalog-dropdown-item catalog-dropdown-item--danger"
+              className="dashboard-dropdown-item dashboard-dropdown-item--danger"
               onClick={() => handleDelete(openDropdown)}
             >
               <span>🗑️</span> Xóa
@@ -250,14 +250,14 @@ export default function VehicleCatalogPage() {
           </div>
         )}
 
-        <div className="catalog-pagination">
-          <div className="catalog-pagination-info">
+        <div className="dashboard-pagination">
+          <div className="dashboard-pagination-info">
             Hiển thị {Math.min((page - 1) * pageSize + 1, filtered.length)}–
             {Math.min(page * pageSize, filtered.length)} / {filtered.length} danh mục
           </div>
-          <div className="catalog-pagination-controls">
+          <div className="dashboard-pagination-controls">
             <button
-              className="catalog-pagination-btn"
+              className="dashboard-pagination-btn"
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
             >
@@ -267,7 +267,7 @@ export default function VehicleCatalogPage() {
               Trang {page} / {totalPages}
             </span>
             <button
-              className="catalog-pagination-btn"
+              className="dashboard-pagination-btn"
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
             >
@@ -279,15 +279,15 @@ export default function VehicleCatalogPage() {
 
       {/* Detail Modal */}
       {selectedCatalog && (
-        <div className="catalog-modal-overlay" onClick={() => setSelectedCatalog(null)}>
-          <div className="catalog-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="catalog-modal-header">
-              <h2 className="catalog-modal-title">Chi tiết danh mục xe</h2>
-              <button className="catalog-modal-close" onClick={() => setSelectedCatalog(null)}>
+        <div className="dashboard-modal-overlay" onClick={() => setSelectedCatalog(null)}>
+          <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="dashboard-modal-header">
+              <h2 className="dashboard-modal-title">Chi tiết danh mục xe</h2>
+              <button className="dashboard-modal-close" onClick={() => setSelectedCatalog(null)}>
                 ✕
               </button>
             </div>
-            <div className="catalog-modal-body">
+            <div className="dashboard-modal-body">
               {selectedCatalog.photo && (
                 <div style={{ marginBottom: "1.5rem", textAlign: "center", position: "relative", width: "100%", height: "300px" }}>
                   <Image
@@ -301,54 +301,54 @@ export default function VehicleCatalogPage() {
                   />
                 </div>
               )}
-              <div className="catalog-detail-grid">
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">ID</span>
-                  <span className="catalog-detail-value">{selectedCatalog.id}</span>
+              <div className="dashboard-detail-grid">
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">ID</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.id}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Loại xe</span>
-                  <span className="catalog-detail-value">{selectedCatalog.type}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Loại xe</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.type}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Hãng</span>
-                  <span className="catalog-detail-value">{selectedCatalog.brand}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Hãng</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.brand}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Mẫu xe</span>
-                  <span className="catalog-detail-value">{selectedCatalog.model}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Mẫu xe</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.model}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Màu sắc</span>
-                  <span className="catalog-detail-value">{selectedCatalog.color}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Màu sắc</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.color}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Số chỗ ngồi</span>
-                  <span className="catalog-detail-value">{selectedCatalog.seatingCapacity}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Số chỗ ngồi</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.seatingCapacity}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Nhiên liệu</span>
-                  <span className="catalog-detail-value">{selectedCatalog.fuelType || "—"}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Nhiên liệu</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.fuelType || "—"}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Tốc độ tối đa</span>
-                  <span className="catalog-detail-value">
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Tốc độ tối đa</span>
+                  <span className="dashboard-detail-value">
                     {selectedCatalog.maxSpeed ? `${selectedCatalog.maxSpeed} km/h` : "—"}
                   </span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Hộp số</span>
-                  <span className="catalog-detail-value">{selectedCatalog.transmission || "—"}</span>
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Hộp số</span>
+                  <span className="dashboard-detail-value">{selectedCatalog.transmission || "—"}</span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Ngày tạo</span>
-                  <span className="catalog-detail-value">
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Ngày tạo</span>
+                  <span className="dashboard-detail-value">
                     {new Date(selectedCatalog.createdAt).toLocaleString("vi-VN")}
                   </span>
                 </div>
-                <div className="catalog-detail-item">
-                  <span className="catalog-detail-label">Ngày cập nhật</span>
-                  <span className="catalog-detail-value">
+                <div className="dashboard-detail-item">
+                  <span className="dashboard-detail-label">Ngày cập nhật</span>
+                  <span className="dashboard-detail-value">
                     {new Date(selectedCatalog.updatedAt).toLocaleString("vi-VN")}
                   </span>
                 </div>

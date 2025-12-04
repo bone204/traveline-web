@@ -86,7 +86,7 @@ export default function PartnersPage() {
     const pageData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const getStatusBadgeClass = (active: boolean) => {
-        const baseClass = "partner-status-badge";
+        const baseClass = "dashboard-badge";
         return `${baseClass} ${baseClass}--${active ? "active" : "inactive"}`;
     };
 
@@ -156,24 +156,24 @@ export default function PartnersPage() {
     };
 
     return (
-        <div className="partner-view" onClick={() => { setOpenDropdown(null); setDropdownPosition(null); }}>
+        <div className="dashboard-view" onClick={() => { setOpenDropdown(null); setDropdownPosition(null); }}>
             {loading && (
-                <div className="partner-loading">
-                    <div className="partner-spinner"></div>
+                <div className="dashboard-loading">
+                    <div className="dashboard-spinner"></div>
                     <p>Đang tải dữ liệu...</p>
                 </div>
             )}
 
             {error && (
-                <div className="partner-error">
-                    <div className="partner-error-icon">⚠️</div>
-                    <h2 className="partner-error-title">Lỗi</h2>
-                    <p className="partner-error-message">{error}</p>
-                    <div className="partner-error-actions">
+                <div className="dashboard-error">
+                    <div className="dashboard-error-icon">⚠️</div>
+                    <h2 className="dashboard-error-title">Lỗi</h2>
+                    <p className="dashboard-error-message">{error}</p>
+                    <div className="dashboard-error-actions">
                         {errorStatus === 401 ? (
-                            <button onClick={handleLogout} className="partner-btn partner-btn--primary">Đăng nhập</button>
+                            <button onClick={handleLogout} className="dashboard-btn dashboard-btn--primary">Đăng nhập</button>
                         ) : (
-                            <button onClick={handleRetry} className="partner-btn partner-btn--primary">Thử lại</button>
+                            <button onClick={handleRetry} className="dashboard-btn dashboard-btn--primary">Thử lại</button>
                         )}
                     </div>
                 </div>
@@ -181,15 +181,15 @@ export default function PartnersPage() {
 
             {!loading && !error && (
                 <>
-                    <div className="partner-toolbar">
+                    <div className="dashboard-toolbar">
                         <input
-                            className="partner-search"
+                            className="dashboard-search"
                             value={q}
                             onChange={(e) => { setQ(e.target.value); setPage(1); }}
                             placeholder="🔍 Tìm kiếm theo tên, email, số điện thoại, địa chỉ..."
                         />
                         <select
-                            className="partner-search"
+                            className="dashboard-search"
                             value={typeFilter}
                             onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
                             style={{ maxWidth: "180px" }}
@@ -203,7 +203,7 @@ export default function PartnersPage() {
                             <option value="flight">Máy bay</option>
                         </select>
                         <select
-                            className="partner-search"
+                            className="dashboard-search"
                             value={activeFilter}
                             onChange={(e) => { setActiveFilter(e.target.value); setPage(1); }}
                             style={{ maxWidth: "180px" }}
@@ -214,9 +214,9 @@ export default function PartnersPage() {
                         </select>
                     </div>
 
-                    <div className="partner-table-container">
-                        <div className="partner-table-wrapper">
-                            <table className="partner-table">
+                    <div className="dashboard-table-container">
+                        <div className="dashboard-table-wrapper">
+                            <table className="dashboard-table">
                                 <thead>
                                     <tr>
                                         <th style={{ width: "80px" }}>ID</th>
@@ -260,9 +260,9 @@ export default function PartnersPage() {
                                                     <td style={{ color: "#64748b", fontSize: "0.85rem" }}>
                                                         {formatDate(coop.createdAt)}
                                                     </td>
-                                                    <td className="partner-action-cell">
+                                                    <td className="dashboard-action-cell">
                                                         <button
-                                                            className="partner-action-btn"
+                                                            className="dashboard-action-btn"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 const rect = e.currentTarget.getBoundingClientRect();
@@ -290,13 +290,13 @@ export default function PartnersPage() {
                             </table>
                         </div>
 
-                        <div className="partner-pagination">
-                            <div className="partner-pagination-info">
+                        <div className="dashboard-pagination">
+                            <div className="dashboard-pagination-info">
                                 Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filtered.length)} trong tổng số {filtered.length} đối tác
                             </div>
-                            <div className="partner-pagination-controls">
+                            <div className="dashboard-pagination-controls">
                                 <button
-                                    className="partner-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage <= 1}
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                 >
@@ -306,7 +306,7 @@ export default function PartnersPage() {
                                     {currentPage} / {totalPages}
                                 </span>
                                 <button
-                                    className="partner-pagination-btn"
+                                    className="dashboard-pagination-btn"
                                     disabled={currentPage >= totalPages}
                                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 >
@@ -321,7 +321,7 @@ export default function PartnersPage() {
             {/* Dropdown menu - rendered outside table */}
             {openDropdown && dropdownPosition && (
                 <div 
-                    className="partner-dropdown-fixed"
+                    className="dashboard-dropdown-fixed"
                     style={{
                         position: 'fixed',
                         top: `${dropdownPosition.top}px`,
@@ -335,7 +335,7 @@ export default function PartnersPage() {
                         return (
                             <>
                                 <button
-                                    className="partner-dropdown-item"
+                                    className="dashboard-dropdown-item"
                                     onClick={() => handleViewDetail(coop)}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -345,7 +345,7 @@ export default function PartnersPage() {
                                     Chi tiết
                                 </button>
                                 <button
-                                    className="partner-dropdown-item partner-dropdown-item--danger"
+                                    className="dashboard-dropdown-item dashboard-dropdown-item--danger"
                                     onClick={() => handleDeleteCooperation(coop.id)}
                                 >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -361,90 +361,90 @@ export default function PartnersPage() {
             )}
 
             {selectedCooperation && (
-                <div className="partner-modal-overlay" onClick={handleCloseModal}>
-                    <div className="partner-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="partner-modal-header">
+                <div className="dashboard-modal-overlay" onClick={handleCloseModal}>
+                    <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="dashboard-modal-header">
                             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                <h2 className="partner-modal-title">Chi tiết đối tác #{selectedCooperation.id}</h2>
+                                <h2 className="dashboard-modal-title">Chi tiết đối tác #{selectedCooperation.id}</h2>
                                 <span className={getStatusBadgeClass(selectedCooperation.active)}>
                                     {getStatusText(selectedCooperation.active)}
                                 </span>
                             </div>
-                            <button className="partner-modal-close" onClick={handleCloseModal}>
+                            <button className="dashboard-modal-close" onClick={handleCloseModal}>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <line x1="18" y1="6" x2="6" y2="18" />
                                     <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="partner-modal-body">
-                            <div className="partner-detail-grid">
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Mã đối tác</span>
-                                    <span className="partner-detail-value">{selectedCooperation.code || "—"}</span>
+                        <div className="dashboard-modal-body">
+                            <div className="dashboard-detail-grid">
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Mã đối tác</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.code || "—"}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Tên đối tác</span>
-                                    <span className="partner-detail-value">{selectedCooperation.name}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Tên đối tác</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.name}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Loại hình</span>
-                                    <span className="partner-detail-value" style={{ textTransform: "capitalize" }}>{selectedCooperation.type}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Loại hình</span>
+                                    <span className="dashboard-detail-value" style={{ textTransform: "capitalize" }}>{selectedCooperation.type}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Người phụ trách</span>
-                                    <span className="partner-detail-value">{selectedCooperation.bossName || "—"}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Người phụ trách</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.bossName || "—"}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Email</span>
-                                    <span className="partner-detail-value">{selectedCooperation.bossEmail || "—"}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Email</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.bossEmail || "—"}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Số điện thoại</span>
-                                    <span className="partner-detail-value">{selectedCooperation.bossPhone || "—"}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Số điện thoại</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.bossPhone || "—"}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Địa chỉ</span>
-                                    <span className="partner-detail-value">
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Địa chỉ</span>
+                                    <span className="dashboard-detail-value">
                                         {[selectedCooperation.address, selectedCooperation.district, selectedCooperation.city, selectedCooperation.province]
                                             .filter(Boolean).join(", ") || "—"}
                                     </span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Số đối tượng</span>
-                                    <span className="partner-detail-value">{selectedCooperation.numberOfObjects}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Số đối tượng</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.numberOfObjects}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Số loại đối tượng</span>
-                                    <span className="partner-detail-value">{selectedCooperation.numberOfObjectTypes}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Số loại đối tượng</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.numberOfObjectTypes}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Lượt đặt</span>
-                                    <span className="partner-detail-value">{selectedCooperation.bookingTimes}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Lượt đặt</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.bookingTimes}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Doanh thu</span>
-                                    <span className="partner-detail-value">{Number(selectedCooperation.revenue).toLocaleString("vi-VN")} đ</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Doanh thu</span>
+                                    <span className="dashboard-detail-value">{Number(selectedCooperation.revenue).toLocaleString("vi-VN")} đ</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Đánh giá TB</span>
-                                    <span className="partner-detail-value">{selectedCooperation.averageRating} ⭐</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Đánh giá TB</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.averageRating} ⭐</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Ngày ký HĐ</span>
-                                    <span className="partner-detail-value">{formatDate(selectedCooperation.contractDate)}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Ngày ký HĐ</span>
+                                    <span className="dashboard-detail-value">{formatDate(selectedCooperation.contractDate)}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Thời hạn HĐ</span>
-                                    <span className="partner-detail-value">{selectedCooperation.contractTerm || "—"}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Thời hạn HĐ</span>
+                                    <span className="dashboard-detail-value">{selectedCooperation.contractTerm || "—"}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Ngày tạo</span>
-                                    <span className="partner-detail-value">{formatDate(selectedCooperation.createdAt)}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Ngày tạo</span>
+                                    <span className="dashboard-detail-value">{formatDate(selectedCooperation.createdAt)}</span>
                                 </div>
-                                <div className="partner-detail-item">
-                                    <span className="partner-detail-label">Ngày cập nhật</span>
-                                    <span className="partner-detail-value">{formatDate(selectedCooperation.updatedAt)}</span>
+                                <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Ngày cập nhật</span>
+                                    <span className="dashboard-detail-value">{formatDate(selectedCooperation.updatedAt)}</span>
                                 </div>
                             </div>
                         </div>
