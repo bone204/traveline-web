@@ -2929,10 +2929,6 @@ a {
     padding: 1.5rem;
   }
 
-  .dashboard-sidebar__brand {
-    margin-bottom: 3rem;
-  }
-
   .dashboard-sidebar__logo {
     display: flex;
     align-items: center;
