@@ -10,10 +10,18 @@ import {
     ContractStatus, 
     type ContractItem 
 } from "./contracts.api";
-import { logout } from "@/utils/token";
+import { logout, getRole } from "@/utils/token";
 
 export default function ContractsPage() {
-    const { data: contracts = [], isLoading, error, refetch } = useGetContractsQuery();
+    const [role, setRole] = useState<"user" | "admin" | null>(null);
+
+    useEffect(() => {
+        setRole(getRole());
+    }, []);
+
+    const { data: contracts = [], isLoading, error, refetch } = useGetContractsQuery(undefined, {
+        skip: role !== "admin",
+    });
     const [deleteContract] = useDeleteContractMutation();
     const [approveContract] = useApproveContractMutation();
     const [rejectContract] = useRejectContractMutation();
@@ -157,6 +165,37 @@ export default function ContractsPage() {
             alert(msg);
         }
     };
+
+    if (role === null) {
+        return (
+            <div className="dashboard-view">
+                <div className="dashboard-loading">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}>
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                    </svg>
+                    <p style={{ marginTop: "1rem" }}>Đang kiểm tra quyền...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (role !== "admin") {
+        return (
+            <div className="dashboard-view">
+                <div className="dashboard-error">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ margin: "0 auto 1rem" }}>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <p style={{ marginBottom: "0.5rem", fontWeight: 600 }}>Chỉ quản trị viên mới xem được hợp đồng</p>
+                    <div className="dashboard-error-actions">
+                        <button onClick={() => router.replace("/")} className="dashboard-btn dashboard-btn--primary">Quay lại trang chủ</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="dashboard-view" onClick={() => setOpenDropdown(null)}>
