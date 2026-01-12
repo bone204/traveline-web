@@ -10,6 +10,8 @@ import { dashboardVehicleCatalogApi } from "@/app/dashboard/vehicle-catalog/vehi
 import { dashboardVehiclesApi } from "@/app/dashboard/vehicles/vehicles.api";
 import { dashboardVouchersApi } from "@/app/dashboard/vouchers/vouchers.api";
 import { rentalBillsApi } from "@/api/rental-bills.api";
+import { cooperationsApi } from "@/api/cooperations.api";
+import { dashboardCooperationContractsApi } from "@/app/dashboard/cooperation-contracts/cooperation-contracts.api";
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +25,8 @@ export const store = configureStore({
     [dashboardVehiclesApi.reducerPath]: dashboardVehiclesApi.reducer,
     [dashboardVouchersApi.reducerPath]: dashboardVouchersApi.reducer,
     [rentalBillsApi.reducerPath]: rentalBillsApi.reducer,
+    [cooperationsApi.reducerPath]: cooperationsApi.reducer,
+    [dashboardCooperationContractsApi.reducerPath]: dashboardCooperationContractsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -35,7 +39,9 @@ export const store = configureStore({
       dashboardVehicleCatalogApi.middleware,
       dashboardVehiclesApi.middleware,
       dashboardVouchersApi.middleware,
-      rentalBillsApi.middleware
+      rentalBillsApi.middleware,
+      cooperationsApi.middleware,
+      dashboardCooperationContractsApi.middleware
     ),
 });
 

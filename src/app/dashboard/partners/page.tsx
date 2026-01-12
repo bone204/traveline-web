@@ -5,17 +5,27 @@ import { useRouter } from "next/navigation";
 import { 
     useGetPartnersQuery, 
     useDeletePartnerMutation, 
+    useApprovePartnerMutation,
+    useUploadContractMutation,
     type Partner 
 } from "./partners.api";
 import { logout } from "@/utils/token";
+import { toast } from "react-hot-toast";
 
 export default function PartnersPage() {
     const { data: partners = [], isLoading, error, refetch } = useGetPartnersQuery();
     const [deletePartner] = useDeletePartnerMutation();
+    const [approvePartner, { isLoading: isApproving }] = useApprovePartnerMutation();
+    const [uploadContract, { isLoading: isUploading }] = useUploadContractMutation();
+
+    const [commissionType, setCommissionType] = useState<string>("PERCENT");
+    const [commissionValue, setCommissionValue] = useState<string>("10");
+    const [contractFile, setContractFile] = useState<File | null>(null);
+    const [expiryDate, setExpiryDate] = useState<string>("");
 
     const [q, setQ] = useState<string>("");
     const [typeFilter, setTypeFilter] = useState<string>("all");
-    const [activeFilter, setActiveFilter] = useState<string>("all");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
     const [page, setPage] = useState<number>(1);
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
@@ -41,22 +51,18 @@ export default function PartnersPage() {
         
         // Filter by type
         if (typeFilter !== "all") {
-            result = result.filter(c => c.type === typeFilter);
+            result = result.filter((c: Partner) => c.type === typeFilter);
         }
         
-        // Filter by active status
-        if (activeFilter !== "all") {
-            result = result.filter(c => {
-                if (activeFilter === "active") return c.active === true;
-                if (activeFilter === "inactive") return c.active === false;
-                return true;
-            });
+        // Filter by status
+        if (statusFilter !== "all") {
+            result = result.filter((c: Partner) => c.status === statusFilter);
         }
         
         // Filter by search term
         const term = q.trim().toLowerCase();
         if (term) {
-            result = result.filter(c =>
+            result = result.filter((c: Partner) =>
                 [c.name, c.code, c.bossName, c.bossEmail, c.bossPhone, c.address, c.city, c.province]
                     .filter(Boolean)
                     .some(val => String(val).toLowerCase().includes(term))
@@ -64,19 +70,33 @@ export default function PartnersPage() {
         }
         
         return result;
-    }, [partners, q, typeFilter, activeFilter]);
+    }, [partners, q, typeFilter, statusFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     const currentPage = Math.min(page, totalPages);
     const pageData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-    const getStatusBadgeClass = (active: boolean) => {
+    const getStatusBadgeClass = (status: string) => {
         const baseClass = "dashboard-badge";
-        return `${baseClass} ${baseClass}--${active ? "active" : "inactive"}`;
+        const statusMap: Record<string, string> = {
+            PENDING: "warning",
+            APPROVED: "info",
+            ACTIVE: "success",
+            REJECTED: "danger",
+            STOPPED: "neutral"
+        };
+        return `${baseClass} ${baseClass}--${statusMap[status] || "neutral"}`;
     };
 
-    const getStatusText = (active: boolean) => {
-        return active ? "Hoạt động" : "Không hoạt động";
+    const getStatusText = (status: string) => {
+        const textMap: Record<string, string> = {
+            PENDING: "Chờ duyệt",
+            APPROVED: "Đã duyệt",
+            ACTIVE: "Hoạt động",
+            REJECTED: "Từ chối",
+            STOPPED: "Tạm dừng"
+        };
+        return textMap[status] || status;
     };
 
     const formatDate = (dateStr?: string) => {
@@ -121,6 +141,43 @@ export default function PartnersPage() {
 
     const handleCloseModal = () => {
         setSelectedPartner(null);
+        setContractFile(null);
+        setExpiryDate("");
+    };
+
+    const handleApprove = async () => {
+        if (!selectedPartner) return;
+        try {
+            await approvePartner({
+                id: selectedPartner.id,
+                commissionType,
+                commissionValue
+            }).unwrap();
+            toast.success("Đã phê duyệt đối tác!");
+        } catch (e: any) {
+            toast.error(e?.data?.message || "Không thể phê duyệt");
+        }
+    };
+
+    const handleUploadContract = async () => {
+        if (!selectedPartner || !contractFile) {
+            toast.error("Vui lòng chọn file hợp đồng");
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append("file", contractFile);
+            if (expiryDate) formData.append("expiryDate", expiryDate);
+            
+            await uploadContract({
+                id: selectedPartner.id,
+                data: formData
+            }).unwrap();
+            toast.success("Đã kích hoạt hợp tác và lưu hợp đồng!");
+            handleCloseModal();
+        } catch (e: any) {
+            toast.error(e?.data?.message || "Không thể tải lên hợp đồng");
+        }
     };
 
     return (
@@ -138,8 +195,7 @@ export default function PartnersPage() {
                     <h2 className="dashboard-error-title">Lỗi</h2>
                     <p className="dashboard-error-message">Không thể tải dữ liệu</p>
                     <div className="dashboard-error-actions">
-                        {/* @ts-expect-error: error type is unknown */}
-                        {error?.status === 401 ? (
+                        {error && 'status' in error && error.status === 401 ? (
                             <button onClick={handleLogout} className="dashboard-btn dashboard-btn--primary">Đăng nhập</button>
                         ) : (
                             <button onClick={() => refetch()} className="dashboard-btn dashboard-btn--primary">Thử lại</button>
@@ -173,13 +229,16 @@ export default function PartnersPage() {
                         </select>
                         <select
                             className="dashboard-search"
-                            value={activeFilter}
-                            onChange={(e) => { setActiveFilter(e.target.value); setPage(1); }}
+                            value={statusFilter}
+                            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                             style={{ maxWidth: "180px" }}
                         >
                             <option value="all">Tất cả trạng thái</option>
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
+                            <option value="PENDING">Chờ duyệt</option>
+                            <option value="APPROVED">Đã duyệt</option>
+                            <option value="ACTIVE">Hoạt động</option>
+                            <option value="REJECTED">Từ chối</option>
+                            <option value="STOPPED">Tạm dừng</option>
                         </select>
                     </div>
 
@@ -199,14 +258,14 @@ export default function PartnersPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {pageData.length === 0 ? (
+                                            {pageData.length === 0 ? (
                                         <tr>
                                             <td colSpan={8} style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
                                                 Không tìm thấy đối tác nào
                                             </td>
                                         </tr>
                                     ) : (
-                                        pageData.map((partner) => {
+                                        pageData.map((partner: Partner) => {
                                             return (
                                                 <tr key={partner.id}>
                                                     <td style={{ fontWeight: 600 }}>#{partner.id}</td>
@@ -222,8 +281,8 @@ export default function PartnersPage() {
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <span className={getStatusBadgeClass(partner.active)}>
-                                                            {getStatusText(partner.active)}
+                                                        <span className={getStatusBadgeClass(partner.status)}>
+                                                            {getStatusText(partner.status)}
                                                         </span>
                                                     </td>
                                                     <td style={{ color: "#64748b", fontSize: "0.85rem" }}>
@@ -299,8 +358,8 @@ export default function PartnersPage() {
                     }}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {pageData.find(c => c.id === openDropdown) && (() => {
-                        const partner = pageData.find(c => c.id === openDropdown)!;
+                    {pageData.find((c: Partner) => c.id === openDropdown) && (() => {
+                        const partner = pageData.find((c: Partner) => c.id === openDropdown)!;
                         return (
                             <>
                                 <button
@@ -335,8 +394,8 @@ export default function PartnersPage() {
                         <div className="dashboard-modal-header">
                             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                                 <h2 className="dashboard-modal-title">Chi tiết đối tác #{selectedPartner.id}</h2>
-                                <span className={getStatusBadgeClass(selectedPartner.active)}>
-                                    {getStatusText(selectedPartner.active)}
+                                <span className={getStatusBadgeClass(selectedPartner.status)}>
+                                    {getStatusText(selectedPartner.status)}
                                 </span>
                             </div>
                             <button className="dashboard-modal-close" onClick={handleCloseModal}>
@@ -411,11 +470,117 @@ export default function PartnersPage() {
                                     <span className="dashboard-detail-label">Ngày tạo</span>
                                     <span className="dashboard-detail-value">{formatDate(selectedPartner.createdAt)}</span>
                                 </div>
-                                <div className="dashboard-detail-item">
+                                 <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Ngày cập nhật</span>
                                     <span className="dashboard-detail-value">{formatDate(selectedPartner.updatedAt)}</span>
                                 </div>
                             </div>
+
+                            <hr style={{ margin: "2rem 0", borderColor: "#e2e8f0" }} />
+
+                            {selectedPartner.status === "PENDING" && (
+                                <div className="dashboard-detail-section">
+                                    <h3 className="dashboard-detail-section-title">Duyệt hồ sơ đối tác</h3>
+                                    <div className="dashboard-form">
+                                        <div className="dashboard-form-grid">
+                                            <div className="dashboard-form-group">
+                                                <label className="dashboard-form-label">Loại hoa hồng</label>
+                                                <select 
+                                                    className="dashboard-form-input"
+                                                    value={commissionType}
+                                                    onChange={(e) => setCommissionType(e.target.value)}
+                                                >
+                                                    <option value="PERCENT">Phần trăm (%)</option>
+                                                    <option value="FIXED">Cố định (đ)</option>
+                                                </select>
+                                            </div>
+                                            <div className="dashboard-form-group">
+                                                <label className="dashboard-form-label">Giá trị</label>
+                                                <input 
+                                                    className="dashboard-form-input"
+                                                    type="text"
+                                                    value={commissionValue}
+                                                    onChange={(e) => setCommissionValue(e.target.value)}
+                                                    placeholder="VD: 10 hoặc 50000"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                            <button 
+                                                className="dashboard-btn dashboard-btn--primary"
+                                                onClick={handleApprove}
+                                                disabled={isApproving}
+                                            >
+                                                {isApproving ? "Đang xử lý..." : "Phê duyệt đối tác"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedPartner.status === "APPROVED" && (
+                                <div className="dashboard-detail-section">
+                                    <h3 className="dashboard-detail-section-title">Kích hoạt & Tải lên hợp đồng</h3>
+                                    <div className="dashboard-form">
+                                        <div className="dashboard-form-grid">
+                                            <div className="dashboard-form-group">
+                                                <label className="dashboard-form-label">File hợp đồng (PDF/Image)</label>
+                                                <input 
+                                                    type="file" 
+                                                    className="dashboard-form-input"
+                                                    onChange={(e) => setContractFile(e.target.files?.[0] || null)}
+                                                />
+                                            </div>
+                                            <div className="dashboard-form-group">
+                                                <label className="dashboard-form-label">Ngày hết hạn (tùy chọn)</label>
+                                                <input 
+                                                    type="date" 
+                                                    className="dashboard-form-input"
+                                                    value={expiryDate}
+                                                    onChange={(e) => setExpiryDate(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
+                                            <button 
+                                                className="dashboard-btn dashboard-btn--primary"
+                                                onClick={handleUploadContract}
+                                                disabled={isUploading}
+                                            >
+                                                {isUploading ? "Đang tải lên..." : "Kích hoạt & Lưu hợp đồng"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedPartner.status === "ACTIVE" && selectedPartner.currentContractUrl && (
+                                <div className="dashboard-detail-section">
+                                    <h3 className="dashboard-detail-section-title">Thông tin hợp tác hiện tại</h3>
+                                    <div className="dashboard-detail-grid">
+                                        <div className="dashboard-detail-item">
+                                            <span className="dashboard-detail-label">Hoa hồng</span>
+                                            <span className="dashboard-detail-value">
+                                                {selectedPartner.commissionType === "PERCENT" 
+                                                    ? `${selectedPartner.commissionValue}%` 
+                                                    : `${Number(selectedPartner.commissionValue).toLocaleString("vi-VN")} đ`}
+                                            </span>
+                                        </div>
+                                        <div className="dashboard-detail-item">
+                                            <span className="dashboard-detail-label">Hợp đồng</span>
+                                            <a 
+                                                href={selectedPartner.currentContractUrl} 
+                                                target="_blank" 
+                                                rel="noreferrer"
+                                                className="dashboard-detail-value"
+                                                style={{ color: "#2563eb", textDecoration: "underline" }}
+                                            >
+                                                Xem hợp đồng đã ký
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

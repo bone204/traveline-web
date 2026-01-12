@@ -29,6 +29,14 @@ export interface Partner {
   revenue: string;
   averageRating: string;
   active: boolean;
+  status: string;
+  commissionType?: string;
+  commissionValue?: string;
+  taxId?: string;
+  representativeName?: string;
+  representativePhone?: string;
+  representativeEmail?: string;
+  currentContractUrl?: string;
   manager?: {
     id: number;
     email: string;
@@ -74,6 +82,22 @@ export const dashboardPartnersApi = createApi({
       }),
       invalidatesTags: [{ type: "DashboardPartners", id: "LIST" }],
     }),
+    approvePartner: builder.mutation<Partner, { id: number; commissionType: string; commissionValue: string }>({
+      query: ({ id, ...body }) => ({
+        url: `cooperations/${id}/approve`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "DashboardPartners", id }, { type: "DashboardPartners", id: "LIST" }],
+    }),
+    uploadContract: builder.mutation<any, { id: number; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `cooperations/${id}/contract`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "DashboardPartners", id }, { type: "DashboardPartners", id: "LIST" }],
+    }),
   }),
 });
 
@@ -81,4 +105,6 @@ export const {
   useGetPartnersQuery,
   useGetPartnerByIdQuery,
   useDeletePartnerMutation,
+  useApprovePartnerMutation,
+  useUploadContractMutation,
 } = dashboardPartnersApi;
