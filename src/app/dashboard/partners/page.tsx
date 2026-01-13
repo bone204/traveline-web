@@ -145,6 +145,13 @@ export default function PartnersPage() {
         setExpiryDate("");
     };
 
+    useEffect(() => {
+        if (selectedPartner) {
+            if (selectedPartner.commissionType) setCommissionType(selectedPartner.commissionType);
+            if (selectedPartner.commissionValue) setCommissionValue(selectedPartner.commissionValue);
+        }
+    }, [selectedPartner]);
+
     const handleApprove = async () => {
         if (!selectedPartner) return;
         try {
@@ -408,6 +415,14 @@ export default function PartnersPage() {
                         <div className="dashboard-modal-body">
                             <div className="dashboard-detail-grid">
                                 <div className="dashboard-detail-item">
+                                    <span className="dashboard-detail-label">Logo thương hiệu</span>
+                                    <span className="dashboard-detail-value">
+                                        {selectedPartner.brandLogo ? (
+                                            <img src={selectedPartner.brandLogo} alt="Logo" style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "8px" }} />
+                                        ) : "—"}
+                                    </span>
+                                </div>
+                                <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Mã đối tác</span>
                                     <span className="dashboard-detail-value">{selectedPartner.code || "—"}</span>
                                 </div>
@@ -420,35 +435,23 @@ export default function PartnersPage() {
                                     <span className="dashboard-detail-value" style={{ textTransform: "capitalize" }}>{selectedPartner.type}</span>
                                 </div>
                                 <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Người phụ trách</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.bossName || "—"}</span>
+                                    <span className="dashboard-detail-label">Người đại diện</span>
+                                    <span className="dashboard-detail-value">{selectedPartner.representativeName || selectedPartner.bossName || "—"}</span>
                                 </div>
                                 <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Email</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.bossEmail || "—"}</span>
+                                    <span className="dashboard-detail-value">{selectedPartner.representativeEmail || selectedPartner.bossEmail || "—"}</span>
                                 </div>
                                 <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Số điện thoại</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.bossPhone || "—"}</span>
+                                    <span className="dashboard-detail-value">{selectedPartner.representativePhone || selectedPartner.bossPhone || "—"}</span>
                                 </div>
                                 <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Địa chỉ</span>
                                     <span className="dashboard-detail-value">
-                                        {[selectedPartner.address, selectedPartner.district, selectedPartner.city, selectedPartner.province]
-                                            .filter(Boolean).join(", ") || "—"}
+                                        {[selectedPartner.address, selectedPartner.districtId, selectedPartner.provinceId]
+                                            .filter(Boolean).join(", ") || [selectedPartner.address, selectedPartner.district, selectedPartner.city, selectedPartner.province].filter(Boolean).join(", ") || "—"}
                                     </span>
-                                </div>
-                                <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Số đối tượng</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.numberOfObjects}</span>
-                                </div>
-                                <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Số loại đối tượng</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.numberOfObjectTypes}</span>
-                                </div>
-                                <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Lượt đặt</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.bookingTimes}</span>
                                 </div>
                                 <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Doanh thu</span>
@@ -459,20 +462,54 @@ export default function PartnersPage() {
                                     <span className="dashboard-detail-value">{selectedPartner.averageRating} ⭐</span>
                                 </div>
                                 <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Ngày ký HĐ</span>
-                                    <span className="dashboard-detail-value">{formatDate(selectedPartner.contractDate)}</span>
-                                </div>
-                                <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Thời hạn HĐ</span>
-                                    <span className="dashboard-detail-value">{selectedPartner.contractTerm || "—"}</span>
-                                </div>
-                                <div className="dashboard-detail-item">
                                     <span className="dashboard-detail-label">Ngày tạo</span>
                                     <span className="dashboard-detail-value">{formatDate(selectedPartner.createdAt)}</span>
                                 </div>
-                                 <div className="dashboard-detail-item">
-                                    <span className="dashboard-detail-label">Ngày cập nhật</span>
-                                    <span className="dashboard-detail-value">{formatDate(selectedPartner.updatedAt)}</span>
+                            </div>
+
+                            <div className="dashboard-detail-section mt-4">
+                                <h3 className="dashboard-detail-section-title">Hồ sơ pháp lý & Tài liệu</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Giấy phép kinh doanh</span>
+                                        {selectedPartner.businessLicense ? (
+                                            <a href={selectedPartner.businessLicense} target="_blank" rel="noreferrer" className="dashboard-detail-value" style={{ color: "#2563eb", textDecoration: "underline" }}>Xem tài liệu</a>
+                                        ) : <span className="dashboard-detail-value">—</span>}
+                                    </div>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">CCCD đại diện</span>
+                                        {selectedPartner.representativeIdCard ? (
+                                            <a href={selectedPartner.representativeIdCard} target="_blank" rel="noreferrer" className="dashboard-detail-value" style={{ color: "#2563eb", textDecoration: "underline" }}>Xem tài liệu</a>
+                                        ) : <span className="dashboard-detail-value">—</span>}
+                                    </div>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Mã số thuế</span>
+                                        <span className="dashboard-detail-value">{selectedPartner.taxId || "—"}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="dashboard-detail-section mt-4">
+                                <h3 className="dashboard-detail-section-title">Thanh toán & Đối soát</h3>
+                                <div className="dashboard-detail-grid">
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Ngân hàng</span>
+                                        <span className="dashboard-detail-value">{selectedPartner.bankName || "—"}</span>
+                                    </div>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Số tài khoản</span>
+                                        <span className="dashboard-detail-value">{selectedPartner.bankAccountNumber || "—"}</span>
+                                    </div>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">Chủ tài khoản</span>
+                                        <span className="dashboard-detail-value">{selectedPartner.bankAccountName || "—"}</span>
+                                    </div>
+                                    <div className="dashboard-detail-item">
+                                        <span className="dashboard-detail-label">QR Thanh toán</span>
+                                        {selectedPartner.paymentQr ? (
+                                            <a href={selectedPartner.paymentQr} target="_blank" rel="noreferrer" className="dashboard-detail-value" style={{ color: "#2563eb", textDecoration: "underline" }}>Xem mã QR</a>
+                                        ) : <span className="dashboard-detail-value">—</span>}
+                                    </div>
                                 </div>
                             </div>
 

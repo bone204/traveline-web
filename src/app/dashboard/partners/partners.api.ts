@@ -37,6 +37,13 @@ export interface Partner {
   representativePhone?: string;
   representativeEmail?: string;
   currentContractUrl?: string;
+  brandLogo?: string;
+  businessLicense?: string;
+  representativeIdCard?: string;
+  paymentQr?: string;
+  provinceId?: string;
+  districtId?: string;
+  wardCode?: string;
   manager?: {
     id: number;
     email: string;
