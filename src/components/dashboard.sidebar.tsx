@@ -5,8 +5,16 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import travelIcon from "@/assets/icon/travel.svg";
 import { logout } from "@/utils/token";
+import { useState, useEffect } from "react";
 
-const NAV_ITEMS = [
+interface NavItem {
+  label: string;
+  href?: string;
+  icon?: React.ReactNode;
+  children?: NavItem[];
+}
+
+const NAV_ITEMS: NavItem[] = [
   {
     label: "Trang chủ",
     href: "/dashboard",
@@ -29,25 +37,24 @@ const NAV_ITEMS = [
     ),
   },
   {
-    label: "Hợp đồng",
-    href: "/dashboard/contracts",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 15 15"><path fill="currentColor" d="M6.796 11.9H6.8h-.003Z"/><path fill="currentColor" fillRule="evenodd" d="M1 1.5A1.5 1.5 0 0 1 2.5 0h8.207L14 3.293V13.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 1 13.5v-12ZM7 4H4v1h3V4Zm4 3H4v1h7V7Zm-4.695 3.908c-.404.108-.72.417-.83.75l-.95-.316c.223-.667.807-1.208 1.52-1.4c.707-.19 1.514-.03 2.212.611a2.75 2.75 0 0 1 .622-.107c.54-.029 1.023.107 1.438.28c.305.127.6.287.85.422c.078.044.153.084.222.12c.323.17.5.232.611.232v1c-.39 0-.774-.188-1.076-.346a21.802 21.802 0 0 1-.272-.146a7.689 7.689 0 0 0-.72-.359c-.334-.14-.663-.222-.999-.204a1.686 1.686 0 0 0-.15.014l.001.014c.027.324-.107.591-.28.783c-.318.354-.837.54-1.227.61a1.962 1.962 0 0 1-.614.025a.9.9 0 0 1-.33-.11a.623.623 0 0 1-.303-.433a.677.677 0 0 1 .111-.48a1.28 1.28 0 0 1 .262-.282c.19-.157.465-.327.834-.513l.027-.02a1.23 1.23 0 0 0-.96-.145Z" clipRule="evenodd"/></svg>
-    ),
-  },
-  {
-    label: "Xe cho thuê",
-    href: "/dashboard/vehicles",
+    label: "Thuê xe",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16"><path fill="currentColor" d="m3.044 6l-.01.074A1.5 1.5 0 0 0 2 7.5v3A1.5 1.5 0 0 0 3.5 12h9a1.5 1.5 0 0 0 1.5-1.5v-3a1.5 1.5 0 0 0-1.04-1.428L12.951 6h.549a.5.5 0 0 0 0-1h-.677l-.16-1.253A2 2 0 0 0 10.68 2H5.319a2 2 0 0 0-1.984 1.744L3.173 5H2.5a.5.5 0 0 0 0 1h.544Zm2.275-3h5.36a1 1 0 0 1 .992.873L11.943 6h-7.89l.274-2.128A1 1 0 0 1 5.319 3ZM5.25 9.749a.749.749 0 1 1 0-1.498a.749.749 0 0 1 0 1.498Zm5.498 0a.749.749 0 1 1 0-1.498a.749.749 0 0 1 0 1.498ZM12.497 13h-1.5v.25a.75.75 0 0 0 1.5 0V13ZM5 13H3.5v.25a.75.75 0 0 0 1.5 0V13Z"/></svg>
     ),
-  },
-  {
-    label: "Danh mục xe",
-    href: "/dashboard/vehicle-catalog",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-    ),
+    children: [
+      {
+        label: "Hợp đồng",
+        href: "/dashboard/contracts",
+      },
+      {
+        label: "Xe cho thuê",
+        href: "/dashboard/vehicles",
+      },
+      {
+        label: "Danh mục xe",
+        href: "/dashboard/vehicle-catalog",
+      },
+    ]
   },
   {
     label: "Voucher",
@@ -77,11 +84,41 @@ const NAV_ITEMS = [
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1.8 18L14 18.2l-1.8 1.8l-.7-.7l1.8-1.8l-1.8-1.8l.7-.7l1.8 1.8l1.8-1.8l.7.7l-1.8 1.8l1.8 1.8l-.7.7zM13 9V3.5L18.5 9H13z"/></svg>
     ),
   },
+  {
+    label: "Báo cáo - Thống kê",
+    href: "/dashboard/statistics",
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+    ),
+  },
 ];
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // Initialize expanded state based on current pathname
+  useEffect(() => {
+    NAV_ITEMS.forEach(item => {
+      if (item.children) {
+        const hasActiveChild = item.children.some(child => 
+           child.href && pathname.startsWith(child.href)
+        );
+        if (hasActiveChild) {
+          setExpandedItems(prev => [...new Set([...prev, item.label])]);
+        }
+      }
+    });
+  }, [pathname]);
+
+  const toggleExpand = (label: string) => {
+    setExpandedItems(prev => 
+      prev.includes(label) 
+        ? prev.filter(item => item !== label)
+        : [...prev, label]
+    );
+  };
 
   const handleLogout = () => {
     logout();
@@ -103,16 +140,67 @@ export function DashboardSidebar() {
         </Link>
       </div>
 
-      <nav className="dashboard-sidebar__nav">
+      <nav className="dashboard-sidebar__nav" style={{ flex: 1, overflowY: 'auto' }}>
         {NAV_ITEMS.map((item) => {
+          if (item.children) {
+             const isExpanded = expandedItems.includes(item.label);
+             const isActiveParent = item.children.some(child => 
+                child.href && pathname.startsWith(child.href)
+             );
+
+             return (
+               <div key={item.label} className="dashboard-sidebar__group">
+                 <button
+                    onClick={() => toggleExpand(item.label)}
+                    className={`dashboard-sidebar__link ${isActiveParent ? "active" : ""} w-full justify-between`}
+                    style={{ cursor: 'pointer', border: 'none', background: isActiveParent ? '#2563eb' : 'transparent' }}
+                 >
+                   <div className="flex items-center gap-[0.6rem]">
+                      <span className={`dashboard-sidebar__link-icon ${isActiveParent ? "text-white" : ""}`}>{item.icon}</span>
+                      <span className={`dashboard-sidebar__link-text ${isActiveParent ? "text-white" : ""}`}>{item.label}</span>
+                   </div>
+                   <svg 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                      className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""} ${isActiveParent ? "text-white" : "text-gray-500"}`}
+                   >
+                      <path d="M6 9l6 6 6-6" />
+                   </svg>
+                 </button>
+                 
+                 {isExpanded && (
+                   <div className="dashboard-sidebar__submenu pl-4 mt-1 space-y-1">
+                     {item.children.map(child => {
+                        const isChildActive = child.href && pathname.startsWith(child.href);
+                        return (
+                          <Link
+                            key={child.label}
+                            href={child.href!}
+                            className={`dashboard-sidebar__link ${isChildActive ? "active" : ""}`}
+                            style={{ paddingLeft: '2.5rem', fontSize: '0.9em' }}
+                          >
+                             <span className="dashboard-sidebar__link-text">{child.label}</span>
+                          </Link>
+                        )
+                     })}
+                   </div>
+                 )}
+               </div>
+             );
+          }
+
           const isActive = item.href === "/dashboard"
             ? pathname === "/dashboard"
-            : pathname.startsWith(item.href);
+            : item.href && pathname.startsWith(item.href);
 
           return (
             <Link
               key={item.label}
-              href={item.href}
+              href={item.href!}
               className={`dashboard-sidebar__link ${isActive ? "active" : ""}`}
             >
               <span className="dashboard-sidebar__link-icon">{item.icon}</span>

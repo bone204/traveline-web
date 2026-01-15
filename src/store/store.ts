@@ -12,6 +12,7 @@ import { dashboardVouchersApi } from "@/app/dashboard/vouchers/vouchers.api";
 import { rentalBillsApi } from "@/api/rental-bills.api";
 import { cooperationsApi } from "@/api/cooperations.api";
 import { dashboardCooperationContractsApi } from "@/app/dashboard/cooperation-contracts/cooperation-contracts.api";
+import { statisticsApi } from "@/api/statistics.api";
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     [rentalBillsApi.reducerPath]: rentalBillsApi.reducer,
     [cooperationsApi.reducerPath]: cooperationsApi.reducer,
     [dashboardCooperationContractsApi.reducerPath]: dashboardCooperationContractsApi.reducer,
+    [statisticsApi.reducerPath]: statisticsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -41,7 +43,8 @@ export const store = configureStore({
       dashboardVouchersApi.middleware,
       rentalBillsApi.middleware,
       cooperationsApi.middleware,
-      dashboardCooperationContractsApi.middleware
+      dashboardCooperationContractsApi.middleware,
+      statisticsApi.middleware
     ),
 });
 
