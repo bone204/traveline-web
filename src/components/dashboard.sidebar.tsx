@@ -147,7 +147,7 @@ export function DashboardSidebar() {
                <div key={item.label} className="dashboard-sidebar__group">
                      <button
                         onClick={() => toggleExpand(item.label)}
-                        className={`dashboard-sidebar__link ${isActiveParent ? "active" : ""} w-full`}
+                        className={`dashboard-sidebar__link ${isActiveParent ? "active" : ""}`}
                         style={{ 
                           cursor: 'pointer', 
                           border: 'none', 
@@ -156,7 +156,8 @@ export function DashboardSidebar() {
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           gap: '0.5rem',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
+                          width: '100%',
                         }}
                      >
                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', overflow: 'hidden' }}>
