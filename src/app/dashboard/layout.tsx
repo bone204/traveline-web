@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "../../components/dashboard.sidebar";
-import { getAccessToken, isTokenValid, logout } from "@/utils/token";
+import { getAccessToken, getRole, isTokenValid, logout } from "@/utils/token";
 
 export default function DashboardLayout({
   children,
@@ -16,13 +16,19 @@ export default function DashboardLayout({
   useEffect(() => {
     const checkAuth = async () => {
       const token = getAccessToken();
+      const role = getRole();
       
       if (!token || !isTokenValid(token)) {
         logout();
         router.replace("/");
         return;
       }
-      // Simpler check: just verify token existence/validity for now since we don't need user profile in layout anymore
+
+      if (role !== "admin") {
+        router.replace("/");
+        return;
+      }
+
       setIsLoading(false);
     };
 

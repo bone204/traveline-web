@@ -2,8 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { LocationCardProps } from "@/components/location.card";
 import type { DestinationDto } from "@/dto/destination.dto";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL = "http://localhost:3000";
 
 function mapDestinationToLocationCard(destination: DestinationDto): LocationCardProps {
   const {

@@ -2,337 +2,407 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
+import { provincesApi, type Province } from "@/api/provinces.api";
 import { 
   useGetDashboardDestinationsQuery, 
-  useDeleteDestinationMutation,
+  useDeleteDestinationMutation, 
+  useAddDestinationMutation,
+  useUpdateDestinationMutation,
   type Destination 
 } from "./destinations.api";
 
 export default function DestinationsPage() {
-  const { data: destinations = [], isLoading, error, refetch } = useGetDashboardDestinationsQuery();
-  const [deleteDestination] = useDeleteDestinationMutation();
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
+  const [selectedProvince, setSelectedProvince] = useState<Province | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [q, setQ] = useState("");
-  const [page, setPage] = useState(1);
-  const pageSize = 6;
-
-  // Dropdown state
-  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
-  
-  // Modal state
-  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
-
-  // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
-        setOpenDropdown(null);
-        setDropdownPosition(null);
-    };
+    provincesApi.findAll().then((data) => {
+      setProvinces(data);
+      setIsLoadingProvinces(false);
+    });
+  }, []);
 
-    if (openDropdown) {
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [openDropdown]);
+  // Destination mutations
+  const [deleteDestination] = useDeleteDestinationMutation();
+  const [addDestination, { isLoading: isAdding }] = useAddDestinationMutation();
+  const [updateDestination, { isLoading: isUpdating }] = useUpdateDestinationMutation();
 
-  const filtered = useMemo(() => {
-    let result = destinations;
-    const term = q.trim().toLowerCase();
-    if (term) {
-      result = result.filter(d => 
-        d.name.toLowerCase().includes(term) ||
-        d.province?.toLowerCase().includes(term) ||
-        d.district?.toLowerCase().includes(term)
-      );
-    }
-    return result;
-  }, [destinations, q]);
+  // Fetch destinations - either all (if no province) or filtered
+  const { data: destinations = [], isLoading: isLoadingDestinations, error: destError } = useGetDashboardDestinationsQuery(
+    selectedProvince ? { province: selectedProvince.name } : undefined
+  );
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const pageData = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  // Modals state
+  const [currentDest, setCurrentDest] = useState<Destination | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Form state
+  const [destForm, setDestForm] = useState({
+    name: "",
+    type: "tourist_attraction",
+    district: "",
+    specificAddress: "",
+    latitude: 10.762622,
+    longitude: 106.660172,
+    descriptionViet: "",
+    descriptionEng: "",
+    categories: [] as string[]
+  });
+  const [photos, setPhotos] = useState<File[]>([]);
+
+  const filteredProvinces = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+    if (!term) return provinces;
+    return provinces.filter(p => p.name.toLowerCase().includes(term));
+  }, [provinces, searchQuery]);
+
+  const filteredDestinations = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+    if (!term) return destinations;
+    return destinations.filter(d => d.name.toLowerCase().includes(term) || d.district?.toLowerCase().includes(term));
+  }, [destinations, searchQuery]);
+
+  // Handlers
+  const handleBack = () => {
+    setSelectedProvince(null);
+    setSearchQuery("");
+  };
+
+  const openCreateModal = () => {
+    setDestForm({
+      name: "", type: "tourist_attraction", district: "", specificAddress: "",
+      latitude: 10.762622, longitude: 106.660172, descriptionViet: "", descriptionEng: "", categories: []
+    });
+    setPhotos([]);
+    setIsCreateModalOpen(true);
+  };
+
+  const openEditModal = (dest: Destination) => {
+    setCurrentDest(dest);
+    setDestForm({
+      name: dest.name,
+      type: dest.type || "tourist_attraction",
+      district: dest.district || "",
+      specificAddress: dest.specificAddress || "",
+      latitude: dest.latitude,
+      longitude: dest.longitude,
+      descriptionViet: dest.descriptionViet || "",
+      descriptionEng: dest.descriptionEng || "",
+      categories: dest.categories || []
+    });
+    setPhotos([]);
+    setIsEditModalOpen(true);
+  };
 
   const handleDelete = async (id: number) => {
     if (!confirm("Bạn có chắc muốn xóa địa điểm này?")) return;
     try {
       await deleteDestination(id).unwrap();
-      setOpenDropdown(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      alert("Xóa thành công!");
     } catch (err) {
       alert("Không thể xóa địa điểm");
     }
   };
 
-  const handleViewDetail = (destination: Destination) => {
-    setSelectedDestination(destination);
-    setOpenDropdown(null);
+  const handleSubmit = async (e: React.FormEvent, mode: "CREATE" | "EDIT") => {
+    e.preventDefault();
+    if (!destForm.name) {
+      alert("Vui lòng điền tên địa điểm");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", destForm.name);
+    formData.append("type", destForm.type);
+    formData.append("province", selectedProvince?.name || "");
+    formData.append("district", destForm.district);
+    formData.append("specificAddress", destForm.specificAddress);
+    formData.append("latitude", destForm.latitude.toString());
+    formData.append("longitude", destForm.longitude.toString());
+    formData.append("descriptionViet", destForm.descriptionViet);
+    formData.append("descriptionEng", destForm.descriptionEng);
+    formData.append("categories", destForm.categories.join(","));
+    
+    photos.forEach(file => {
+      formData.append("photos", file);
+    });
+
+    try {
+      if (mode === "CREATE") {
+        await addDestination(formData).unwrap();
+        setIsCreateModalOpen(false);
+      } else {
+        await updateDestination({ id: currentDest!.id, body: formData }).unwrap();
+        setIsEditModalOpen(false);
+      }
+      alert(`${mode === "CREATE" ? "Thêm" : "Cập nhật"} thành công!`);
+    } catch (err: any) {
+      alert(err?.data?.message || "Đã có lỗi xảy ra");
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="dashboard-loading">
-        <div className="dashboard-spinner"></div>
-        <p>Đang tải danh sách địa điểm...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-error">
-        <div className="dashboard-error-icon">⚠️</div>
-        <p className="dashboard-error-message">Không thể tải dữ liệu</p>
-        <div className="dashboard-error-actions">
-          <button onClick={() => refetch()} className="dashboard-btn dashboard-btn--primary">Thử lại</button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoadingProvinces) return <div className="p-12 text-center text-slate-500 font-medium">Đang tải dữ liệu...</div>;
 
   return (
-    <div className="dashboard-view" onClick={() => setOpenDropdown(null)}>
-      <div className="dashboard-toolbar">
-        <input
-          className="dashboard-search"
-          value={q}
-          onChange={(e) => { setQ(e.target.value); setPage(1); }}
-          placeholder="🔍 Tìm kiếm theo tên, tỉnh/thành..."
-        />
+    <div className="dashboard-view" style={{ overflowY: "auto", maxHeight: "calc(100vh - 40px)", paddingBottom: "3rem" }}>
+      {/* Header */}
+      <div className="dashboard-header" style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "2.5rem", position: "sticky", top: 0, backgroundColor: "#fff", zIndex: 10, padding: "1rem 0" }}>
+        {selectedProvince && (
+          <button 
+            onClick={handleBack}
+            className="dashboard-btn"
+            style={{ padding: "0.5rem 1rem", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.5rem" }}
+          >
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+             </svg>
+             Quay lại
+          </button>
+        )}
+        
+        <div style={{ flex: 1, position: "relative" }}>
+          <input
+            className="dashboard-search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={selectedProvince ? `🔍 Tìm kiếm địa điểm tại ${selectedProvince.name}...` : "🔍 Chọn tỉnh thành để xem địa điểm..."}
+            style={{ width: "100%", paddingLeft: "3rem" }}
+          />
+        </div>
+
+        {selectedProvince && (
+          <button 
+            onClick={openCreateModal}
+            className="dashboard-btn dashboard-btn--primary"
+          >
+            + Thêm địa điểm
+          </button>
+        )}
       </div>
 
-      <div className="dashboard-table-container">
-        <div className="dashboard-table-wrapper">
-          <table className="dashboard-table">
-            <thead>
-              <tr>
-                <th style={{ width: "80px" }}>ID</th>
-                <th style={{ width: "250px" }}>Tên địa điểm</th>
-                <th style={{ width: "150px" }}>Tỉnh/Thành</th>
-                <th style={{ width: "150px" }}>Quận/Huyện</th>
-                <th style={{ width: "100px" }}>Đánh giá</th>
-                <th style={{ width: "100px" }}>Yêu thích</th>
-                <th style={{ width: "100px" }}>Ngày tạo</th>
-                <th style={{ width: "60px" }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {pageData.length === 0 ? (
-                <tr>
-                  <td colSpan={8} style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
-                    Không tìm thấy địa điểm nào
-                  </td>
-                </tr>
-              ) : (
-                pageData.map((dest) => (
-                  <tr key={dest.id}>
-                    <td style={{ fontWeight: 600, color: "#64748b" }}>#{dest.id}</td>
-                    <td style={{ fontWeight: 600 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <span>{dest.name}</span>
+      <div style={{ padding: "0 1rem" }}>
+        {!selectedProvince ? (
+          // Provinces Grid
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.75rem" }}>
+            {filteredProvinces.map((province, index) => (
+              <div
+                key={province.id || province.code || index}
+                onClick={() => setSelectedProvince(province)}
+                className="bg-white"
+                style={{ 
+                  backgroundColor: "#fff", 
+                  padding: "1.5rem", 
+                  borderRadius: "24px", 
+                  border: "1px solid #e2e8f0", 
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "1rem",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow = "0 10px 20px rgba(0,0,0,0.05)";
+                  e.currentTarget.style.borderColor = "#4f46e5";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
+                  e.currentTarget.style.borderColor = "#e2e8f0";
+                }}
+              >
+                <div style={{ width: "100px", height: "100px", borderRadius: "50%", background: "#f8fafc", overflow: "hidden", border: "4px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                  {province.avatarUrl ? (
+                    <img
+                      src={province.avatarUrl}
+                      alt={province.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontWeight: 700 }}>
+                      {province.code}
+                    </div>
+                  )}
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontWeight: 800, color: "#1e293b", fontSize: "1.1rem", marginBottom: "0.25rem" }}>{province.name}</div>
+                  <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Mã: {province.code}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Destinations Circular Grid
+          <div>
+            {isLoadingDestinations ? (
+              <div style={{ textAlign: "center", padding: "4rem", color: "#64748b" }}>Đang tải danh sách địa điểm...</div>
+            ) : filteredDestinations.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "4rem", color: "#94a3b8" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📍</div>
+                <p>Chưa có địa điểm nào tại {selectedProvince.name}</p>
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.75rem" }}>
+                {filteredDestinations.map((dest) => (
+                  <div
+                    key={dest.id}
+                    style={{ 
+                      backgroundColor: "#fff", 
+                      padding: "1.5rem", 
+                      borderRadius: "24px", 
+                      border: "1px solid #e2e8f0", 
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "1rem",
+                      transition: "all 0.2s ease",
+                      position: "relative",
+                      overflow: "hidden"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#4f46e5";
+                      const actions = e.currentTarget.querySelector('.dest-actions') as HTMLElement;
+                      if (actions) actions.style.opacity = "1";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#e2e8f0";
+                      const actions = e.currentTarget.querySelector('.dest-actions') as HTMLElement;
+                      if (actions) actions.style.opacity = "0";
+                    }}
+                  >
+                    <div 
+                      style={{ width: "100px", height: "100px", borderRadius: "50%", background: "#f8fafc", overflow: "hidden", border: "4px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.08)", cursor: "pointer" }}
+                      onClick={() => { setCurrentDest(dest); setIsDetailModalOpen(true); }}
+                    >
+                      {dest.photos && dest.photos.length > 0 ? (
+                        <img
+                          src={dest.photos[0]}
+                          alt={dest.name}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#cbd5e1", fontSize: "2rem" }}>
+                          🏞️
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontWeight: 800, color: "#1e293b", fontSize: "1rem", marginBottom: "0.25rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "220px" }}>{dest.name}</div>
+                      <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600 }}>{dest.district || "—"}</div>
+                      <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
+                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#fbbf24", display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                          <span>★</span> {dest.rating || 0}
+                        </div>
+                        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#94a3b8", display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                          <span>❤️</span> {dest.favouriteTimes || 0}
+                        </div>
                       </div>
-                    </td>
-                    <td>{dest.province || "—"}</td>
-                    <td>{dest.district || "—"}</td>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                        <span style={{ fontWeight: 600 }}>{dest.rating || 0}</span>
-                        <span style={{ color: "#fbbf24" }}>★</span>
-                      </div>
-                    </td>
-                    <td>{dest.favouriteTimes || 0}</td>
-                    <td>{dest.createdAt ? new Date(dest.createdAt).toLocaleDateString('vi-VN') : "—"}</td>
-                    <td className="dashboard-action-cell">
-                      <button
-                        className="dashboard-action-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const windowHeight = window.innerHeight;
-                          const dropdownHeight = 100;
-                          
-                          const spaceBelow = windowHeight - rect.bottom;
-                          const shouldShowAbove = spaceBelow < dropdownHeight;
-                          
-                          setDropdownPosition({
-                              top: shouldShowAbove ? rect.top - dropdownHeight : rect.bottom + 2,
-                              right: window.innerWidth - rect.right
-                          });
-                          setOpenDropdown(openDropdown === dest.id ? null : dest.id);
-                        }}
+                    </div>
+
+                    {/* Actions */}
+                    <div 
+                      className="dest-actions"
+                      style={{ 
+                        position: "absolute", bottom: "0.75rem", left: 0, right: 0, 
+                        display: "flex", justifyContent: "center", gap: "0.5rem", 
+                        opacity: 0, transition: "opacity 0.2s ease", padding: "0 1rem" 
+                      }}
+                    >
+                      <button 
+                        onClick={() => openEditModal(dest)}
+                        className="dashboard-btn"
+                        style={{ padding: "0.35rem", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1f5f9", color: "#475569", border: "none", cursor: "pointer" }}
                       >
-                        ⋮
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
                       </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="dashboard-pagination">
-          <div className="dashboard-pagination-info">
-            Hiển thị {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filtered.length)} trong tổng số {filtered.length} địa điểm
+                      <button 
+                        onClick={() => handleDelete(dest.id)}
+                        className="dashboard-btn"
+                        style={{ padding: "0.35rem", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", background: "#fee2e2", color: "#ef4444", border: "none", cursor: "pointer" }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="dashboard-pagination-controls">
-            <button 
-              className="dashboard-pagination-btn"
-              disabled={currentPage <= 1} 
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-            >
-              ← Trước
-            </button>
-            <span style={{ padding: "0 0.75rem", color: "#475569", fontWeight: 500 }}>
-              {currentPage} / {totalPages}
-            </span>
-            <button 
-              className="dashboard-pagination-btn"
-              disabled={currentPage >= totalPages} 
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            >
-              Sau →
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Dropdown menu */}
-      {openDropdown && dropdownPosition && (
-        <div 
-          className="dashboard-dropdown-fixed"
-          style={{
-              position: 'fixed',
-              top: `${dropdownPosition.top}px`,
-              right: `${dropdownPosition.right}px`,
-              zIndex: 1000
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {pageData.find(d => d.id === openDropdown) && (() => {
-            const dest = pageData.find(d => d.id === openDropdown)!;
-            return (
-              <>
-                <button
-                  className="dashboard-dropdown-item"
-                  onClick={() => handleViewDetail(dest)}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  Chi tiết
-                </button>
-                <button
-                  className="dashboard-dropdown-item dashboard-dropdown-item--danger"
-                  onClick={() => handleDelete(dest.id)}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  </svg>
-                  Xóa
-                </button>
-              </>
-            );
-          })()}
+      {/* Modals */}
+      {(isCreateModalOpen || isEditModalOpen) && (
+        <div className="dashboard-modal-overlay" onClick={() => { setIsCreateModalOpen(false); setIsEditModalOpen(false); }}>
+          <div className="dashboard-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "800px" }}>
+            <div className="dashboard-modal-header">
+              <h2 className="dashboard-modal-title">{isCreateModalOpen ? "Thêm địa điểm mới" : "Chỉnh sửa địa điểm"}</h2>
+              <button className="dashboard-modal-close" onClick={() => { setIsCreateModalOpen(false); setIsEditModalOpen(false); }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+            <form onSubmit={(e) => handleSubmit(e, isCreateModalOpen ? "CREATE" : "EDIT")} className="dashboard-modal-body">
+              <div className="dashboard-detail-grid">
+                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
+                  <label className="dashboard-detail-label">Tên địa điểm *</label>
+                  <input className="dashboard-search" style={{ width: "100%", marginTop: "0.25rem" }} value={destForm.name} onChange={e => setDestForm({...destForm, name: e.target.value})} required />
+                </div>
+                <div className="dashboard-detail-item">
+                  <label className="dashboard-detail-label">Loại</label>
+                  <select className="dashboard-search" style={{ width: "100%", marginTop: "0.25rem" }} value={destForm.type} onChange={e => setDestForm({...destForm, type: e.target.value})}>
+                    <option value="tourist_attraction">Điểm tham quan</option>
+                    <option value="restaurant">Nhà hàng</option>
+                    <option value="hotel">Khách sạn</option>
+                  </select>
+                </div>
+                <div className="dashboard-detail-item">
+                  <label className="dashboard-detail-label">Tỉnh/Thành</label>
+                  <input className="dashboard-search" style={{ width: "100%", marginTop: "0.25rem", background: "#f1f5f9" }} value={selectedProvince?.name || ""} disabled />
+                </div>
+                <div className="dashboard-detail-item">
+                  <label className="dashboard-detail-label">Quận/Huyện</label>
+                  <input className="dashboard-search" style={{ width: "100%", marginTop: "0.25rem" }} value={destForm.district} onChange={e => setDestForm({...destForm, district: e.target.value})} />
+                </div>
+                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
+                  <label className="dashboard-detail-label">Mô tả (Tiếng Việt)</label>
+                  <textarea className="dashboard-search" style={{ width: "100%", marginTop: "0.25rem", minHeight: "80px" }} value={destForm.descriptionViet} onChange={e => setDestForm({...destForm, descriptionViet: e.target.value})} />
+                </div>
+                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
+                  <label className="dashboard-detail-label">Ảnh địa điểm {isCreateModalOpen ? "(Ít nhất 1) *" : ""}</label>
+                  <input type="file" multiple accept="image/*" onChange={e => setPhotos(Array.from(e.target.files || []))} style={{ marginTop: "0.5rem" }} />
+                </div>
+              </div>
+              <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
+                <button type="button" className="dashboard-btn" onClick={() => { setIsCreateModalOpen(false); setIsEditModalOpen(false); }}>Hủy</button>
+                <button type="submit" className="dashboard-btn dashboard-btn--primary" disabled={isAdding || isUpdating}>{isAdding || isUpdating ? "Đang lưu..." : "Lưu"}</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Detail Modal */}
-      {selectedDestination && (
-        <div className="dashboard-modal-overlay" onClick={() => setSelectedDestination(null)}>
-          <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
+      {isDetailModalOpen && currentDest && (
+        <div className="dashboard-modal-overlay" onClick={() => setIsDetailModalOpen(false)}>
+          <div className="dashboard-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px" }}>
             <div className="dashboard-modal-header">
-              <h2 className="dashboard-modal-title">Chi tiết địa điểm #{selectedDestination.id}</h2>
-              <button className="dashboard-modal-close" onClick={() => setSelectedDestination(null)}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+              <h2 className="dashboard-modal-title">{currentDest.name}</h2>
+              <button className="dashboard-modal-close" onClick={() => setIsDetailModalOpen(false)}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>
             </div>
             <div className="dashboard-modal-body">
-              {selectedDestination.photos && selectedDestination.photos.length > 0 && (
-                <div style={{ marginBottom: "1.5rem", width: "100%", height: "200px", position: "relative", borderRadius: "8px", overflow: "hidden" }}>
-                   <Image 
-                      src={selectedDestination.photos[0]} 
-                      alt={selectedDestination.name}
-                      fill
-                      style={{ objectFit: "cover" }}
-                    />
-                </div>
-              )}
-              <div className="dashboard-detail-grid">
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Tên địa điểm</span>
-                  <span className="dashboard-detail-value">{selectedDestination.name}</span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Loại</span>
-                  <span className="dashboard-detail-value">{selectedDestination.type || "—"}</span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Tỉnh/Thành</span>
-                  <span className="dashboard-detail-value">{selectedDestination.province || "—"}</span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Quận/Huyện</span>
-                  <span className="dashboard-detail-value">{selectedDestination.district || "—"}</span>
-                </div>
-                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
-                  <span className="dashboard-detail-label">Địa chỉ cụ thể</span>
-                  <span className="dashboard-detail-value">{selectedDestination.specificAddress || "—"}</span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Tọa độ</span>
-                  <span className="dashboard-detail-value">
-                    {selectedDestination.latitude}, {selectedDestination.longitude}
-                  </span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Trạng thái</span>
-                  <span className="dashboard-detail-value">
-                    {selectedDestination.available ? (
-                      <span style={{ color: "#10b981", fontWeight: 500 }}>Hoạt động</span>
-                    ) : (
-                      <span style={{ color: "#ef4444", fontWeight: 500 }}>Tạm ngưng</span>
-                    )}
-                  </span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Đánh giá</span>
-                  <span className="dashboard-detail-value">
-                    {selectedDestination.rating || 0} ⭐ ({selectedDestination.userRatingsTotal} lượt)
-                  </span>
-                </div>
-                <div className="dashboard-detail-item">
-                  <span className="dashboard-detail-label">Lượt yêu thích</span>
-                  <span className="dashboard-detail-value">{selectedDestination.favouriteTimes}</span>
-                </div>
-                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
-                  <span className="dashboard-detail-label">Danh mục</span>
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
-                    {selectedDestination.categories && selectedDestination.categories.length > 0 ? (
-                      selectedDestination.categories.map((cat, idx) => (
-                        <span key={idx} style={{ background: "#f1f5f9", padding: "0.25rem 0.5rem", borderRadius: "4px", fontSize: "0.8rem" }}>
-                          {cat}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="dashboard-detail-value">—</span>
-                    )}
-                  </div>
-                </div>
-                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
-                  <span className="dashboard-detail-label">Mô tả (Việt)</span>
-                  <span className="dashboard-detail-value">{selectedDestination.descriptionViet || "—"}</span>
-                </div>
-                <div className="dashboard-detail-item" style={{ gridColumn: "1 / -1" }}>
-                  <span className="dashboard-detail-label">Mô tả (Anh)</span>
-                  <span className="dashboard-detail-value">{selectedDestination.descriptionEng || "—"}</span>
-                </div>
-              </div>
+              {currentDest.photos && currentDest.photos.length > 0 && <img src={currentDest.photos[0]} style={{ width: "100%", height: "240px", objectFit: "cover", borderRadius: "16px", marginBottom: "1.5rem" }} />}
+              <p style={{ lineHeight: "1.6" }}>{currentDest.descriptionViet || "Không có mô tả."}</p>
             </div>
           </div>
         </div>

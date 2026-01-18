@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LoginModal } from "./login.modal";
 import travelIcon from "@/assets/icon/travel.svg";
+import { useMeQuery } from "@/api/auth.api";
+import { clearTokens } from "@/utils/token";
+import { useRouter } from "next/navigation";
 
 type NavItem = {
   label: string;
@@ -24,6 +27,14 @@ function AppHeader() {
   const [isSolid, setIsSolid] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { data: user, refetch } = useMeQuery();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    clearTokens();
+    refetch();
+    router.push("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,18 +85,43 @@ function AppHeader() {
             })}
           </nav>
           <div className="app-header__auth">
-            <button 
-              onClick={() => setIsLoginModalOpen(true)}
-              className="app-header__auth-btn app-header__auth-btn--login"
-            >
-              Đăng nhập
-            </button>
-            <Link
-              href="/empty-page"
-              className="app-header__auth-btn app-header__auth-btn--register"
-            >
-              Đăng ký
-            </Link>
+            {user ? (
+              <>
+                {user.role === "user" && (
+                  <Link
+                    href="/partner-registration"
+                    className="app-header__auth-btn app-header__auth-btn--partner"
+                    style={{ marginRight: "1rem" }}
+                  >
+                    Tạo hồ sơ hợp tác
+                  </Link>
+                )}
+                <span style={{ marginRight: "1rem", color: isSolid ? "#333" : "#fff" }}>
+                  Chào, {user.username}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="app-header__auth-btn app-header__auth-btn--login"
+                >
+                  Đăng xuất
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="app-header__auth-btn app-header__auth-btn--login"
+                >
+                  Đăng nhập
+                </button>
+                <Link
+                  href="/empty-page"
+                  className="app-header__auth-btn app-header__auth-btn--register"
+                >
+                  Đăng ký
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

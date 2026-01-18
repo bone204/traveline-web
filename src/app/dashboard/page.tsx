@@ -3,54 +3,54 @@
 export default function DashboardHome() {
   return (
     <div className="dashboard-home">
-      <h1 className="dashboard-title">Welcome back, User!</h1>
-      <p className="dashboard-subtitle">Here's what's happening with your projects today.</p>
+      <h1 className="dashboard-title">Chào mừng bạn trở lại!</h1>
+      <p className="dashboard-subtitle">Đây là những gì đang diễn ra với hệ thống Traveline hôm nay.</p>
       
       <div className="dashboard-stats-grid">
         <div className="dashboard-stat-card">
-            <h3>Total Projects</h3>
+            <h3>Tổng số địa điểm</h3>
             <p className="dashboard-stat-value">12</p>
-            <span className="dashboard-stat-change positive">+2 this week</span>
+            <span className="dashboard-stat-change positive">+2 tuần này</span>
         </div>
         <div className="dashboard-stat-card">
-            <h3>Active Tasks</h3>
+            <h3>Người dùng mới</h3>
             <p className="dashboard-stat-value">24</p>
-            <span className="dashboard-stat-change neutral">Same as yesterday</span>
+            <span className="dashboard-stat-change neutral">Tương tự hôm qua</span>
         </div>
         <div className="dashboard-stat-card">
-            <h3>Team Members</h3>
+            <h3>Đối tác</h3>
             <p className="dashboard-stat-value">8</p>
-            <span className="dashboard-stat-change positive">+1 new member</span>
+            <span className="dashboard-stat-change positive">+1 thành viên mới</span>
         </div>
         <div className="dashboard-stat-card">
-            <h3>Hours Tracked</h3>
+            <h3>Lượt đặt xe</h3>
             <p className="dashboard-stat-value">142</p>
-            <span className="dashboard-stat-change negative">-5% from last week</span>
+            <span className="dashboard-stat-change negative">-5% so với tuần trước</span>
         </div>
       </div>
 
       <div className="dashboard-section">
-        <h2>Recent Activity</h2>
+        <h2>Hoạt động gần đây</h2>
         <div className="dashboard-activity-list">
             <div className="dashboard-activity-item">
                 <div className="dashboard-activity-icon blue"></div>
                 <div className="dashboard-activity-content">
-                    <p><strong>New task added</strong> to <span className="highlight">Design System</span></p>
-                    <span className="dashboard-activity-time">2 hours ago</span>
+                    <p><strong>Địa điểm mới được thêm</strong> vào <span className="highlight">Vịnh Hạ Long</span></p>
+                    <span className="dashboard-activity-time">2 giờ trước</span>
                 </div>
             </div>
              <div className="dashboard-activity-item">
                 <div className="dashboard-activity-icon green"></div>
                 <div className="dashboard-activity-content">
-                    <p><strong>Project completed</strong>: <span className="highlight">Mobile App Redesign</span></p>
-                    <span className="dashboard-activity-time">5 hours ago</span>
+                    <p><strong>Hợp đồng hoàn thành</strong>: <span className="highlight">Thuê xe VinFast VF8</span></p>
+                    <span className="dashboard-activity-time">5 giờ trước</span>
                 </div>
             </div>
              <div className="dashboard-activity-item">
                 <div className="dashboard-activity-icon orange"></div>
                 <div className="dashboard-activity-content">
-                    <p><strong>Meeting scheduled</strong> with <span className="highlight">Marketing Team</span></p>
-                    <span className="dashboard-activity-time">Yesterday</span>
+                    <p><strong>Cuộc họp được lên lịch</strong> với <span className="highlight">Đội ngũ kỹ thuật</span></p>
+                    <span className="dashboard-activity-time">Hôm qua</span>
                 </div>
             </div>
         </div>

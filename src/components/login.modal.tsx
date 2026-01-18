@@ -42,12 +42,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setIsLoading(true);
 
     try {
-      await loginFn({
+      const tokens = await loginFn({
         username: formData.username,
         password: formData.password,
       }).unwrap();
-      // Login successful: navigate to dashboard. Modal will unmount.
-      router.push("/dashboard");
+      
+      // If admin: navigate to dashboard.
+      // If regular user: stay on current page and close modal.
+      if (tokens.role === "admin") {
+        router.push("/dashboard");
+      } else {
+        onClose();
+      }
       router.refresh();
     } catch (err) {
       setError(

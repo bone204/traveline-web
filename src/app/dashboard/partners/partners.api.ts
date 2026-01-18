@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getAccessToken } from "@/utils/token";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000";
+const API_BASE_URL = "http://localhost:3000";
 
 export interface Partner {
   id: number;
@@ -29,6 +29,21 @@ export interface Partner {
   revenue: string;
   averageRating: string;
   active: boolean;
+  status: string;
+  commissionType?: string;
+  commissionValue?: string;
+  taxId?: string;
+  representativeName?: string;
+  representativePhone?: string;
+  representativeEmail?: string;
+  currentContractUrl?: string;
+  brandLogo?: string;
+  businessLicense?: string;
+  representativeIdCard?: string;
+  paymentQr?: string;
+  provinceId?: string;
+  districtId?: string;
+  wardCode?: string;
   manager?: {
     id: number;
     email: string;
@@ -74,6 +89,22 @@ export const dashboardPartnersApi = createApi({
       }),
       invalidatesTags: [{ type: "DashboardPartners", id: "LIST" }],
     }),
+    approvePartner: builder.mutation<Partner, { id: number; commissionType: string; commissionValue: string }>({
+      query: ({ id, ...body }) => ({
+        url: `cooperations/${id}/approve`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "DashboardPartners", id }, { type: "DashboardPartners", id: "LIST" }],
+    }),
+    uploadContract: builder.mutation<any, { id: number; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `cooperations/${id}/contract`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "DashboardPartners", id }, { type: "DashboardPartners", id: "LIST" }],
+    }),
   }),
 });
 
@@ -81,4 +112,6 @@ export const {
   useGetPartnersQuery,
   useGetPartnerByIdQuery,
   useDeletePartnerMutation,
+  useApprovePartnerMutation,
+  useUploadContractMutation,
 } = dashboardPartnersApi;
