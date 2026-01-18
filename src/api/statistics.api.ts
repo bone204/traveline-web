@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getAccessToken } from "@/utils/token";
 import { DashboardSummary, UserGrowthStats, RevenueStats, ServiceUsageStats } from "@/dto/statistics.dto";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "https://traveline-server.vercel.app";
 
 export const statisticsApi = createApi({
   reducerPath: "statisticsApi",

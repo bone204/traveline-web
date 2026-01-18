@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getAccessToken } from "@/utils/token";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://traveline-server.vercel.app";
 
 const getHeader = () => ({
   Authorization: `Bearer ${getAccessToken()}`,

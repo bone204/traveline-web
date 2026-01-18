@@ -8,7 +8,7 @@ import {
   clearTokens,
 } from "@/utils/token";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "https://traveline-server.vercel.app";
 
 export const authApi = createApi({
   reducerPath: "authApi",
