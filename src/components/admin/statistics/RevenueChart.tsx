@@ -17,11 +17,7 @@ interface RevenueChartProps {
 
 export default function RevenueChart({ data }: RevenueChartProps) {
   return (
-    <div className="w-full h-[350px]">
-      <div className="flex items-center justify-between mb-6">
-         <h3 className="text-lg font-bold text-slate-800">Doanh thu (6 tháng gần nhất)</h3>
-         {/* Could add a filter dropdown here later */}
-      </div>
+    <div style={{ width: '100%', height: '350px', position: 'relative' }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}

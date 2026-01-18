@@ -17,8 +17,7 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function ServiceUsageChart({ data }: ServiceUsageChartProps) {
   return (
-    <div className="w-full h-[350px]">
-      <h3 className="text-lg font-bold mb-6 text-slate-800">Mức độ sử dụng dịch vụ (Loại xe)</h3>
+    <div style={{ width: '100%', height: '350px', position: 'relative' }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie

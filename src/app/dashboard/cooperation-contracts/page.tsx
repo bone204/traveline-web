@@ -38,10 +38,7 @@ export default function CooperationContractsPage() {
 
     return (
         <div className="dashboard-view">
-            <h1 className="dashboard-title">Hợp đồng đối tác</h1>
-            <p className="dashboard-subtitle">Danh sách tất cả các hợp đồng đã ký kết với đối tác</p>
-
-            <div className="dashboard-toolbar mt-4">
+            <div className="dashboard-toolbar">
                 <input
                     className="dashboard-search"
                     value={q}

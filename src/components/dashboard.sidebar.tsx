@@ -64,28 +64,23 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    label: "Tỉnh thành",
-    href: "/dashboard/provinces",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M15 11V5l-3-3l-3 3v2H3v14h18V11h-6zm-2 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2zm6 8h-2v-2h2v2zm0-4h-2v-2h2v2zm-12 4H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2z"/></svg>
-    ),
-  },
-  {
     label: "Đối tác",
-    href: "/dashboard/partners",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M19.291 6h.71a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2l-4.17-5.836a2 2 0 0 0-2.201-.753l-2.486.746a2 2 0 0 1-1.988-.502l-.293-.293a1 1 0 0 1 .152-1.539l5.401-3.6a2 2 0 0 1 2.183-.024l4.156 2.645A1 1 0 0 0 19.29 6ZM5.027 14.295l-1.616 1.414a1 1 0 0 0 .041 1.538l5.14 4.04a1 1 0 0 0 1.487-.29l.704-1.232a2 2 0 0 0-.257-2.338l-2.702-2.973a2 2 0 0 0-2.797-.16ZM7.046 5H3a1 1 0 0 0-1 1v7.516a2 2 0 0 0 .35 1.13a2.61 2.61 0 0 1 .074-.066l1.615-1.414a3.5 3.5 0 0 1 4.895.28l2.702 2.972a3.5 3.5 0 0 1 .45 4.09l-.655 1.146a2 2 0 0 0 1.738-.155l4.41-2.646a1 1 0 0 0 .299-1.438l-5.267-7.379a.5.5 0 0 0-.55-.188l-2.486.745a3.5 3.5 0 0 1-3.48-.877l-.293-.293a2.5 2.5 0 0 1 .38-3.848L7.047 5Z"/></svg>
     ),
+    children: [
+      {
+        label: "Danh sách đối tác",
+        href: "/dashboard/partners",
+      },
+      {
+        label: "Hợp đồng đối tác",
+        href: "/dashboard/cooperation-contracts",
+      },
+    ]
   },
   {
-    label: "Hợp đồng đối tác",
-    href: "/dashboard/cooperation-contracts",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1.8 18L14 18.2l-1.8 1.8l-.7-.7l1.8-1.8l-1.8-1.8l.7-.7l1.8 1.8l1.8-1.8l.7.7l-1.8 1.8l1.8 1.8l-.7.7zM13 9V3.5L18.5 9H13z"/></svg>
-    ),
-  },
-  {
-    label: "Báo cáo - Thống kê",
+    label: "Thống kê",
     href: "/dashboard/statistics",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
@@ -150,27 +145,37 @@ export function DashboardSidebar() {
 
              return (
                <div key={item.label} className="dashboard-sidebar__group">
-                 <button
-                    onClick={() => toggleExpand(item.label)}
-                    className={`dashboard-sidebar__link ${isActiveParent ? "active" : ""} w-full justify-between`}
-                    style={{ cursor: 'pointer', border: 'none', background: isActiveParent ? '#2563eb' : 'transparent' }}
-                 >
-                   <div className="flex items-center gap-[0.6rem]">
-                      <span className={`dashboard-sidebar__link-icon ${isActiveParent ? "text-white" : ""}`}>{item.icon}</span>
-                      <span className={`dashboard-sidebar__link-text ${isActiveParent ? "text-white" : ""}`}>{item.label}</span>
-                   </div>
-                   <svg 
-                      width="16" 
-                      height="16" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2"
-                      className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""} ${isActiveParent ? "text-white" : "text-gray-500"}`}
-                   >
-                      <path d="M6 9l6 6 6-6" />
-                   </svg>
-                 </button>
+                     <button
+                        onClick={() => toggleExpand(item.label)}
+                        className={`dashboard-sidebar__link ${isActiveParent ? "active" : ""} w-full`}
+                        style={{ 
+                          cursor: 'pointer', 
+                          border: 'none', 
+                          background: isActiveParent ? '#2563eb' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '0.5rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                     >
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', overflow: 'hidden' }}>
+                          <span className={`dashboard-sidebar__link-icon ${isActiveParent ? "text-white" : ""}`} style={{ flexShrink: 0 }}>{item.icon}</span>
+                          <span className={`dashboard-sidebar__link-text ${isActiveParent ? "text-white" : ""}`} style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+                       </div>
+                       <svg 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2"
+                          style={{ flexShrink: 0 }}
+                          className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""} ${isActiveParent ? "text-white" : "text-gray-500"}`}
+                       >
+                          <path d="M6 9l6 6 6-6" />
+                       </svg>
+                     </button>
                  
                  {isExpanded && (
                    <div className="dashboard-sidebar__submenu pl-4 mt-1 space-y-1">

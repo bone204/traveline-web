@@ -17,8 +17,7 @@ interface UserGrowthChartProps {
 
 export default function UserGrowthChart({ data }: UserGrowthChartProps) {
   return (
-    <div className="w-full h-[350px]">
-      <h3 className="text-lg font-bold mb-6 text-slate-800">Tăng trưởng người dùng</h3>
+    <div style={{ width: '100%', height: '350px', position: 'relative' }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
